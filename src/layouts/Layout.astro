@@ -23,4 +23,25 @@ const { title } = Astro.props;
   html {
     @apply bg-slate-800 text-slate-100;
   }
+  [type="text"],
+  [type="email"],
+  [type="url"],
+  [type="password"],
+  [type="number"],
+  [type="date"],
+  [type="datetime-local"],
+  [type="month"],
+  [type="search"],
+  [type="tel"],
+  [type="time"],
+  [type="week"],
+  [multiple],
+  textarea,
+  select {
+    @apply rounded-lg border-2 border-slate-600 bg-transparent placeholder-slate-500 focus:border-yellow-500 focus:ring-transparent disabled:bg-slate-600;
+  }
+  [type="checkbox"],
+  [type="radio"] {
+    @apply rounded-lg border-2 border-slate-600 bg-transparent text-yellow-500 focus:ring-transparent disabled:bg-slate-600;
+  }
 </style>
