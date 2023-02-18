@@ -1,8 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Schedule from "../components/Schedule.jsx";
+import Schedule from "../components/Index.jsx";
 ---
 
 <Layout title="social-scheduler">
-  <Schedule client:load />
+  <Schedule client:only="react" />
 </Layout>
