@@ -1,10 +1,10 @@
-import { formatISO, format } from "date-fns";
+import { formatISO, format, isSameDay } from "date-fns";
 import ical from "ical";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { rrulestr } from "rrule";
 import { RadioGroup } from "@headlessui/react";
 
-const Schedule = () => {
+const App = () => {
   // const cal = useIcal(
   //   "https://calendar.google.com/calendar/ical/d721a6f85d1f6a5df9ef3efa7d550de29c3581e4cede18de74329a681a33bb8b%40group.calendar.google.com/public/basic.ics"
   // );
@@ -94,41 +94,47 @@ const Schedule = () => {
 };
 
 const BlockSection = ({ events }) => {
-  const now = new Date();
-  const blocks = [];
+  const blocks = useMemo(() => {
+    const now = new Date();
+    const blocks = [];
 
-  Object.values(events)
-    .filter((event) => event.type === "VEVENT")
-    .forEach((event) => {
-      const title = event.summary;
-      const location = event.location;
-      const description = event.description;
-      const startDate = event.start;
-      const rule = event.rrule
-        ? rrulestr(event.rrule.toString(), { dtstart: startDate })
-        : undefined;
+    Object.values(events)
+      .filter((event) => event.type === "VEVENT")
+      .forEach((event) => {
+        const title = event.summary;
+        const location = event.location;
+        const description = event.description;
+        const startDate = event.start;
+        const rule = event.rrule
+          ? rrulestr(event.rrule.toString(), { dtstart: startDate })
+          : undefined;
 
-      console.log(`Title: ${title}`);
-      console.log(`Location: ${location}`);
-      console.log(`Description: ${description}`);
-      console.log(`Start Date: ${startDate}`);
+        console.log(`Title: ${title}`);
+        console.log(`Location: ${location}`);
+        console.log(`Description: ${description}`);
+        console.log(`Start Date: ${startDate}`);
 
-      if (rule) {
-        rule
-          .between(now, new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000))
-          .forEach((occurrence) => {
-            blocks.push({
-              ...event,
-              date: occurrence,
+        if (rule) {
+          rule
+            .between(now, new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000))
+            .forEach((occurrence) => {
+              blocks.push({
+                ...event,
+                date: occurrence,
+                id: event.uid + occurrence.toString(),
+              });
             });
+        } else if (startDate > now) {
+          blocks.push({
+            ...event,
+            date: startDate,
+            id: event.uid,
           });
-      } else if (startDate > now) {
-        blocks.push({
-          ...event,
-          date: startDate,
-        });
-      }
-    });
+        }
+      });
+    return blocks;
+  }, [events]);
+
   console.log(blocks);
 
   const [option, setOption] = useState("");
@@ -141,22 +147,28 @@ const BlockSection = ({ events }) => {
     >
       {blocks
         .sort((a, b) => a.date - b.date)
-        .map((block) => (
-          <RadioGroup.Option
-            key={block.uid + block.date.toString()}
-            value={block.uid + block.date.toString()}
-          >
-            {({ checked }) => (
-              <div
-                className={`border-2 rounded-lg border-slate-500 p-4 ${
-                  checked && "bg-slate-700"
-                }`}
-              >
-                <p className="text-2xl font-bold">{block.summary}</p>
-                <p className="text-xl font-bold">{block.date.toString()}</p>
+        .map((block, i) => (
+          <>
+            {(i === 0 || !isSameDay(block.date, blocks[i - 1].date)) && (
+              <div className="font-semibold text-lg pt-2 -mb-2">
+                {format(block.date, "EEEE, MMM d")}
               </div>
             )}
-          </RadioGroup.Option>
+            <RadioGroup.Option key={block.id} value={block.id}>
+              {({ checked }) => (
+                <div
+                  className={`border-2 rounded-lg cursor-pointer p-4 ${
+                    checked
+                      ? "border-yellow-500 bg-yellow-400/20"
+                      : "border-slate-600 hover:bg-slate-700"
+                  }`}
+                >
+                  <p className="text-2xl font-medium">{block.summary}</p>
+                  <p className="text-xl">~ {format(block.date, "haaa")}</p>
+                </div>
+              )}
+            </RadioGroup.Option>
+          </>
         ))}
     </RadioGroup>
   );
@@ -445,4 +457,4 @@ END:VCALENDAR
   return cal;
 };
 
-export default Schedule;
+export default App;
