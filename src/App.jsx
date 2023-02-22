@@ -35,10 +35,8 @@ const App = () => {
     setDay(enabledDates[0].date);
   }
 
-  return cal?.error ? (
-    <Error error={cal.error} />
-  ) : (
-    <Redirect>
+  return (
+    <Redirect error={cal?.error}>
       <div className="max-w-lg box-content px-4 mx-auto my-20 flex flex-col gap-20">
         <h1 className="font-bold text-2xl text-center">
           Schedule a time with Sam Holmberg

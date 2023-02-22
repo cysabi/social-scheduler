@@ -7,11 +7,7 @@ const DaySection = ({ value, onChange, dates, disabled }) => (
     className="flex flex-wrap sm:grid sm:grid-cols-7 gap-3"
     value={value}
     onChange={onChange}
-    by={(a, b) => {
-      if (a && b) {
-        return a.toDateString() === b.toDateString();
-      }
-    }}
+    by={(a, b) => (a && b ? a.toString() === b.toString() : undefined)}
   >
     {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day) => (
       <p
