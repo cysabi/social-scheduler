@@ -3,7 +3,7 @@ import { RadioGroup } from "@headlessui/react";
 
 const DaySection = ({ value, onChange, dates, disabled }) => (
   <RadioGroup
-    className="grid grid-cols-7 gap-3"
+    className="flex flex-wrap sm:grid sm:grid-cols-7 gap-3"
     value={value}
     onChange={onChange}
     by={(a, b) => {
@@ -14,7 +14,7 @@ const DaySection = ({ value, onChange, dates, disabled }) => (
   >
     {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day) => (
       <p
-        className="uppercase text-center font-medium text-slate-400 -mb-2"
+        className="uppercase hidden sm:block text-center font-medium text-slate-400 -mb-2"
         key={day}
       >
         {day}
@@ -25,6 +25,7 @@ const DaySection = ({ value, onChange, dates, disabled }) => (
         key={d.date}
         value={d.date}
         disabled={disabled(d)}
+        className="flex-1"
         style={{
           gridColumnStart: getDay(d.date),
         }}

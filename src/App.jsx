@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import {
-  formatISO,
   format,
   isSameDay,
   add,
@@ -17,6 +16,7 @@ import BlockSection from "./components/BlockSection";
 import DaySection from "./components/DaySection";
 import Section from "./components/Section";
 import PaginateButton from "./components/PaginateButton";
+import Redirect from "./components/Redirect";
 
 const App = () => {
   const cal = useCalendar(
@@ -37,155 +37,127 @@ const App = () => {
     setDay(enabledDates[0].date);
   }
 
-  const url = getEventRequestUrl();
-  if (url) {
-    window.open(url, "_blank"); // replace with replacing the entire href
-    return null;
-  }
-
-  if (cal?.error) {
-    return <Error error={cal.error} />;
-  }
-
-  return (
-    <div className="max-w-lg box-content px-4 mx-auto my-20 flex flex-col gap-20">
-      <h1 className="font-bold text-2xl text-center">
-        Schedule a time with Sam Holmberg
-      </h1>
-      <Section
-        logo={
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"
-          />
-        }
-        title={
-          <span className="inline-flex items-center">
-            <span>Pick a day in the next </span>
-            <span className="inline-flex gap-1 mx-2 px-1.5 items-center tracking-normal font-medium text-slate-50 rounded-md border-2 border-slate-600">
-              <PaginateButton
-                sub
-                disabled={weeks === 2}
-                onClick={() => setWeeks(weeks - 2)}
-              />
-              {`${weeks} weeks`}
-              <PaginateButton
-                plus
-                disabled={weeks === 8}
-                onClick={() => setWeeks(weeks + 2)}
-              />
-            </span>
-          </span>
-        }
-      >
-        <DaySection
-          value={day}
-          onChange={setDay}
-          dates={dates}
-          disabled={(d) => !enabledDates.includes(d)}
-        />
-      </Section>
-      <Section
-        logo={
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        }
-        title={
-          <span className="inline-flex items-center">
-            <span>Pick a block for</span>
-            {day && (
-              <span className="inline-flex gap-1 mx-2 px-1.5 items-center tracking-normal font-medium text-slate-50 rounded-md border-2 border-slate-600">
+  return cal?.error ? (
+    <Error error={cal.error} />
+  ) : (
+    <Redirect>
+      <div className="max-w-lg box-content px-4 mx-auto my-20 flex flex-col gap-20">
+        <h1 className="font-bold text-2xl text-center">
+          Schedule a time with Sam Holmberg
+        </h1>
+        <Section
+          logo={
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"
+            />
+          }
+          title={
+            <span className="inline-flex flex-wrap items-center">
+              <span className="mr-2">Pick a day from the next </span>
+              <span className="shrink-0 inline-flex gap-1 px-1.5 items-center tracking-normal font-medium text-slate-50 rounded-md border-2 border-slate-600">
                 <PaginateButton
-                  left
-                  disabled={
-                    enabledDates.findIndex(
-                      (d) => d.date.toString() === day.toString()
-                    ) === 0
-                  }
-                  onClick={() =>
-                    setDay(
-                      enabledDates[
-                        enabledDates.findIndex((d) => d.date === day) - 1
-                      ].date
-                    )
-                  }
+                  sub
+                  disabled={weeks === 2}
+                  onClick={() => setWeeks(weeks - 2)}
                 />
-                {format(day, "MMMM d")}
+                {`${weeks} weeks`}
                 <PaginateButton
-                  right
-                  disabled={
-                    enabledDates.findIndex(
-                      (d) => d.date.toString() === day.toString()
-                    ) ===
-                    enabledDates.length - 1
-                  }
-                  onClick={() =>
-                    setDay(
-                      enabledDates[
-                        enabledDates.findIndex((d) => d.date === day) + 1
-                      ].date
-                    )
-                  }
+                  plus
+                  disabled={weeks === 8}
+                  onClick={() => setWeeks(weeks + 2)}
                 />
               </span>
-            )}
-          </span>
-        }
-      >
-        {day ? (
-          <BlockSection
-            value={block}
-            onChange={setBlock}
-            blocks={blocks.filter((b) => isSameDay(b.date, day))}
+            </span>
+          }
+        >
+          <DaySection
+            value={day}
+            onChange={setDay}
+            dates={dates}
+            disabled={(d) => !enabledDates.includes(d)}
           />
-        ) : (
-          <div className="rounded-lg flex items-center bg-slate-700 justify-between flex-wrap font-medium p-4">
-            <p className="w-full text-center text-slate-400">
-              Loading Blocks...
-            </p>
-          </div>
-        )}
-      </Section>
-      <Section
-        logo={
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-          />
-        }
-        title="Enter your details"
-      >
-        <DetailsSection />
-      </Section>
-    </div>
+        </Section>
+        <Section
+          logo={
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          }
+          title={
+            <span className="inline-flex flex-wrap items-center">
+              <span className="mr-2">Pick a block for</span>
+              {day && (
+                <span className="shrink-0 inline-flex gap-1 px-1.5 items-center tracking-normal font-medium text-slate-50 rounded-md border-2 border-slate-600">
+                  <PaginateButton
+                    left
+                    disabled={
+                      enabledDates.findIndex(
+                        (d) => d.date.toString() === day.toString()
+                      ) === 0
+                    }
+                    onClick={() =>
+                      setDay(
+                        enabledDates[
+                          enabledDates.findIndex((d) => d.date === day) - 1
+                        ].date
+                      )
+                    }
+                  />
+                  {format(day, "MMMM d")}
+                  <PaginateButton
+                    right
+                    disabled={
+                      enabledDates.findIndex(
+                        (d) => d.date.toString() === day.toString()
+                      ) ===
+                      enabledDates.length - 1
+                    }
+                    onClick={() =>
+                      setDay(
+                        enabledDates[
+                          enabledDates.findIndex((d) => d.date === day) + 1
+                        ].date
+                      )
+                    }
+                  />
+                </span>
+              )}
+            </span>
+          }
+        >
+          {day ? (
+            <BlockSection
+              value={block}
+              onChange={setBlock}
+              blocks={blocks.filter((b) => isSameDay(b.date, day))}
+            />
+          ) : (
+            <div className="rounded-lg flex items-center bg-slate-700 justify-between flex-wrap font-medium p-4">
+              <p className="w-full text-center text-slate-400">
+                Loading Blocks...
+              </p>
+            </div>
+          )}
+        </Section>
+        <Section
+          logo={
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+            />
+          }
+          title="Enter your details"
+        >
+          <DetailsSection />
+        </Section>
+      </div>
+    </Redirect>
   );
-};
-
-const getEventRequestUrl = () => {
-  const params = new Proxy(new URLSearchParams(window.location.search), {
-    get: (searchParams, prop) => searchParams.get(prop),
-  });
-  if (params.name) {
-    let url = "https://www.google.com/calendar/render?action=TEMPLATE";
-    url += "&text=" + encodeURIComponent(params.name);
-    url += "&details=" + encodeURIComponent(params.description);
-    if (params.location)
-      url += "&location=" + encodeURIComponent(params.location);
-    if (params.start)
-      url +=
-        "&dates=" +
-        encodeURIComponent(
-          formatISO(params.start, { format: "basic" }) +
-            "/" +
-            formatISO(params.end, { format: "basic" })
-        );
-    return url;
-  }
 };
 
 const useDates = (blocks, weeks) => {
@@ -250,22 +222,21 @@ const useBlocks = (data) => {
 };
 
 const useCalendar = (url) => {
-  // return devData();
-  const [cal, setCal] = useState();
+  const [cal, setCal] = useState(devData());
 
-  useEffect(() => {
-    fetch("https://corsproxy.io/?" + url)
-      .then((resp) => {
-        if (resp.ok) {
-          resp.text().then((text) => setCal({ data: ical.parseICS(text) }));
-        } else {
-          resp.text().then((text) => setCal({ error: text }));
-        }
-      })
-      .catch((error) => {
-        setCal({ error: error.message });
-      });
-  }, []);
+  // useEffect(() => {
+  //   fetch("https://corsproxy.io/?" + url)
+  //     .then((resp) => {
+  //       if (resp.ok) {
+  //         resp.text().then((text) => setCal({ data: ical.parseICS(text) }));
+  //       } else {
+  //         resp.text().then((text) => setCal({ error: text }));
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       setCal({ error: error.message });
+  //     });
+  // }, []);
 
   return cal;
 };

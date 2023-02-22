@@ -1,6 +1,6 @@
 const Error = ({ error }) => (
-  <div className="h-screen flex flex-col gap-2 items-center justify-center">
-    <div className="h-12 w-12 bg-red-400/20 flex items-center justify-center rounded-md text-red-400">
+  <div className="h-screen flex flex-col items-center justify-center">
+    <div className="h-12 w-12 bg-red-400/20 mb-4 flex items-center justify-center rounded-md text-red-400">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
