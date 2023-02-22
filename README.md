@@ -13,10 +13,11 @@ This app depends on links to 2 ical files, one that represents "blocks" that peo
 ## usage <!-- Using the product -->
 
 1. Fork the repo
-2. Update the `src/config.js` with your name, and the 2 ical files.
+2. Set the correct `base` in `vite.config.js`.
+3. Update the `src/config.js` with your name, and the 2 ical files.
    - `cal` is the "blocks" calendar
    - `plans` is the... plans calendar
-3. Commit, and watch the magic happen!
+4. Commit, and watch the magic happen!
 
 ## local setup <!-- Using the source -->
 
