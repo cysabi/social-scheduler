@@ -5,13 +5,16 @@ import {
   isSameDay,
   add,
   differenceInHours,
-  addDays,
   getDay,
+  addDays,
+  isWednesday,
 } from "date-fns";
 import ical from "ical";
 import { rrulestr } from "rrule";
-import { RadioGroup } from "@headlessui/react";
-import { useForm } from "react-hook-form";
+import Error from "./components/Error";
+import DetailsSection from "./components/DetailsSection";
+import BlockSection from "./components/BlockSection";
+import DaySection from "./components/DaySection";
 
 const App = () => {
   const cal = useCalendar(
@@ -20,27 +23,12 @@ const App = () => {
   // const cal = useCalendar(
   //   "https://calendar.google.com/calendar/ical/sammyboy1510%40gmail.com/public/basic.ics"
   // );
-  const blocks = useBlocks(cal?.data || []);
   const [weeks, setWeeks] = useState(2);
-
-  const today = new Date();
-  const dates = Array.from(
-    { length: weeks * 7 - getDay(today) + 1 },
-    (_, i) => {
-      const nextDate = addDays(today, i);
-      return {
-        date: nextDate,
-        month: format(nextDate, "LLL"),
-        day: format(nextDate, "do"),
-      };
-    }
-  );
-  const enabledDates = dates.filter(
-    (d) => blocks.filter((b) => isSameDay(b.date, d.date)).length !== 0
-  );
-
   const [day, setDay] = useState("");
   const [block, setBlock] = useState("");
+
+  const blocks = useBlocks(cal?.data || []);
+  const [dates, enabledDates] = useDates(blocks, weeks);
 
   if (enabledDates.length > 0 && day === "") {
     setDay(enabledDates[0].date);
@@ -56,8 +44,6 @@ const App = () => {
     return <Error error={cal.error} />;
   }
 
-  console.log(cal);
-
   return (
     <div className="max-w-lg box-content px-4 mx-auto my-20 flex flex-col gap-20">
       <h1 className="font-bold text-2xl text-center">
@@ -66,261 +52,23 @@ const App = () => {
       <DaySection
         value={day}
         onChange={setDay}
-        blocks={blocks}
         weeks={weeks}
         setWeeks={setWeeks}
         dates={dates}
+        enabledDates={enabledDates}
       />
-      <Section
-        logo={
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        }
-        title={
-          <span className="inline-flex items-center">
-            <span>Pick a block for</span>
-            {day && (
-              <>
-                <span className="inline-flex gap-1 mx-2 px-1.5 items-center tracking-normal font-medium text-slate-50 rounded-md border-2 border-slate-600">
-                  <PaginateButton left />
-                  {format(day, "MMMM d")}
-                  <PaginateButton right />
-                </span>
-              </>
-            )}
-          </span>
-        }
-      >
-        {cal && day ? (
-          <BlockSection
-            value={block}
-            onChange={setBlock}
-            day={day}
-            blocks={blocks}
-          />
-        ) : (
-          <div className="rounded-lg flex items-center bg-slate-700 justify-between flex-wrap font-medium p-4">
-            <p className="w-full text-center">Please select a day first</p>
-          </div>
-        )}
-      </Section>
-      <Section
-        logo={
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-          />
-        }
-        title="Enter your details"
-      >
-        <DetailsSection />
-      </Section>
+      <BlockSection
+        value={block}
+        onChange={setBlock}
+        day={day}
+        setDay={setDay}
+        blocks={blocks}
+        enabledDates={enabledDates}
+      />
+      <DetailsSection />
     </div>
   );
 };
-
-const PaginateButton = ({ left, right, ...rest }) => {
-  return (
-    <button {...rest} className="group">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        className="w-5 h-5 text-slate-400 hover:group-enabled:text-slate-200 group-disabled:text-slate-600"
-      >
-        {left && (
-          <path
-            fillRule="evenodd"
-            d="M15.79 14.77a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L11.832 10l3.938 3.71a.75.75 0 01.02 1.06zm-6 0a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L5.832 10l3.938 3.71a.75.75 0 01.02 1.06z"
-            clipRule="evenodd"
-          />
-        )}
-        {right && (
-          <>
-            <path
-              fillRule="evenodd"
-              d="M10.21 14.77a.75.75 0 01.02-1.06L14.168 10 10.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-              clipRule="evenodd"
-            />
-            <path
-              fillRule="evenodd"
-              d="M4.21 14.77a.75.75 0 01.02-1.06L8.168 10 4.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-              clipRule="evenodd"
-            />
-          </>
-        )}
-      </svg>
-    </button>
-  );
-};
-
-const DaySection = ({ value, onChange, blocks, weeks, dates, setWeeks }) => {
-  return (
-    <Section
-      logo={
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"
-        />
-      }
-      title={
-        <span className="inline-flex items-center">
-          <span>Pick a day in the next </span>
-          <span className="inline-flex gap-1 mx-2 px-1.5 items-center tracking-normal font-medium text-slate-50 rounded-md border-2 border-slate-600">
-            <PaginateButton
-              left
-              disabled={weeks === 2}
-              onClick={() => setWeeks(weeks - 2)}
-            />
-            {`${weeks} weeks`}
-            <PaginateButton
-              right
-              disabled={weeks === 8}
-              onClick={() => setWeeks(weeks + 2)}
-            />
-          </span>
-        </span>
-      }
-    >
-      <RadioGroup
-        className="grid grid-cols-7 gap-3"
-        value={value}
-        onChange={onChange}
-        by={(a, b) => {
-          if (a && b) {
-            return a.toDateString() === b.toDateString();
-          }
-        }}
-      >
-        {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day) => (
-          <p
-            className="uppercase text-center font-medium text-slate-400 -mb-2"
-            key={day}
-          >
-            {day}
-          </p>
-        ))}
-        {dates.map((d) => (
-          <RadioGroup.Option
-            key={d.date}
-            value={d.date}
-            disabled={
-              blocks.filter((b) => isSameDay(b.date, d.date)).length === 0
-            }
-            style={{
-              gridColumnStart: getDay(d.date),
-            }}
-          >
-            {({ checked, disabled }) => (
-              <div
-                className={`border-2 border-slate-600 p-2 rounded-md flex-col text-center font-medium ${
-                  checked
-                    ? "border-yellow-500 bg-yellow-400/20"
-                    : "border-slate-600 hover:bg-slate-700"
-                } ${
-                  disabled
-                    ? "border-slate-700 bg-slate-700 cursor-not-allowed text-slate-300"
-                    : "cursor-pointer"
-                }`}
-              >
-                <p>{d.month}</p>
-                <p>{d.day}</p>
-              </div>
-            )}
-          </RadioGroup.Option>
-        ))}
-      </RadioGroup>
-    </Section>
-  );
-};
-
-const BlockSection = ({ value, onChange, day, blocks }) => {
-  return (
-    <RadioGroup
-      value={value}
-      onChange={onChange}
-      by={(a, b) => a.id === b.id}
-      className="flex flex-col gap-4"
-    >
-      {blocks
-        .filter((b) => isSameDay(b.date, day))
-        .sort((a, b) => a.date - b.date)
-        .map((block) => (
-          <RadioGroup.Option key={block.id} value={block}>
-            {({ checked }) => (
-              <div
-                className={`border-2 rounded-lg flex items-center justify-between flex-wrap font-medium cursor-pointer p-4 ${
-                  checked
-                    ? "border-yellow-500 bg-yellow-400/20"
-                    : "border-slate-600 hover:bg-slate-700"
-                }`}
-              >
-                <p>{block.summary}</p>
-                <p>~ {format(block.date, "haaa")}</p>
-              </div>
-            )}
-          </RadioGroup.Option>
-        ))}
-    </RadioGroup>
-  );
-};
-
-const DetailsSection = () => (
-  <>
-    <div className="flex flex-col gap-3">
-      <input
-        type="text"
-        className="bg-transparent border-2 rounded-md border-slate-500"
-        // {...form.register("name", { required: true })}
-        placeholder="Your Name"
-      />
-      <input
-        type="text"
-        className="bg-transparent border-2 rounded-md border-slate-500"
-        placeholder="Event Title"
-        // {...form.register("title", { required: true })}
-      />
-      <input
-        type="text"
-        className="bg-transparent border-2 rounded-md border-slate-500"
-        placeholder="Location"
-        // {...form.register("location")}
-      />
-    </div>
-    <button
-      type="submit"
-      className="w-full py-2 mt-20 px-3 text-white rounded-md bg-yellow-600 font-bold tracking-wider uppercase"
-    >
-      Create Request
-    </button>
-  </>
-);
-
-const Section = ({ logo, title, children }) => (
-  <div className="flex flex-col gap-3">
-    <div className="flex items-center gap-3">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth="1.5"
-        stroke="currentColor"
-        className="w-6 h-6 shrink-0 text-yellow-400"
-      >
-        {logo}
-      </svg>
-      <h2 className="text-lg uppercase font-semibold tracking-wider text-slate-300">
-        {title}
-      </h2>
-    </div>
-    {children}
-  </div>
-);
 
 const getEventRequestUrl = () => {
   const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -344,30 +92,27 @@ const getEventRequestUrl = () => {
   }
 };
 
-const Error = ({ error }) => (
-  <div className="h-screen flex flex-col gap-2 items-center justify-center">
-    <div className="h-12 w-12 bg-red-400/20 flex items-center justify-center rounded-md text-red-400">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={2}
-        stroke="currentColor"
-        className="w-8 h-8"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
-        />
-      </svg>
-    </div>
-    <div className="text-2xl text-red-400 font-bold">
-      An error has occurred:
-    </div>
-    <div className="text-lg text-slate-300">{error}</div>
-  </div>
-);
+const useDates = (blocks, weeks) => {
+  const [dates, enabledDates] = useMemo(() => {
+    const today = new Date();
+    const dates = Array.from(
+      { length: weeks * 7 - getDay(today) + 1 },
+      (_, i) => {
+        const nextDate = addDays(today, i);
+        return {
+          date: nextDate,
+          month: format(nextDate, "LLL"),
+          day: format(nextDate, "do"),
+        };
+      }
+    );
+    const enabledDates = dates.filter(
+      (d) => blocks.filter((b) => isSameDay(b.date, d.date)).length !== 0
+    );
+    return [dates, enabledDates];
+  }, [blocks, weeks]);
+  return [dates, enabledDates];
+};
 
 const useBlocks = (data) => {
   const blocks = useMemo(() => {
@@ -402,14 +147,14 @@ const useBlocks = (data) => {
           });
         }
       });
-    return out;
+    return out.filter((e) => !isWednesday(e.date));
   }, [data]);
 
   return blocks;
 };
 
 const useCalendar = (url) => {
-  // return devData()
+  // return devData();
   const [cal, setCal] = useState();
 
   useEffect(() => {
