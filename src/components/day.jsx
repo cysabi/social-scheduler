@@ -1,5 +1,6 @@
 import { getDay } from "date-fns";
 import { RadioGroup } from "@headlessui/react";
+import PaginateButton from "./PaginateButton";
 
 const DaySection = ({ value, onChange, dates, disabled }) => (
   <RadioGroup
@@ -14,7 +15,7 @@ const DaySection = ({ value, onChange, dates, disabled }) => (
   >
     {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day) => (
       <p
-        className="uppercase hidden sm:block text-center font-medium text-slate-400 -mb-2"
+        className="uppercase hidden sm:block text-center font-medium text-slate-400 -mb-2.5"
         key={day}
       >
         {day}
@@ -49,6 +50,22 @@ const DaySection = ({ value, onChange, dates, disabled }) => (
       </RadioGroup.Option>
     ))}
   </RadioGroup>
+);
+
+export const DayButton = ({ weeks, setWeeks }) => (
+  <span className="shrink-0 inline-flex gap-1 px-1.5 items-center tracking-normal font-medium text-slate-50 rounded-md border-2 border-slate-600">
+    <PaginateButton
+      sub
+      disabled={weeks === 2}
+      onClick={() => setWeeks(weeks - 2)}
+    />
+    {`${weeks} weeks`}
+    <PaginateButton
+      plus
+      disabled={weeks === 8}
+      onClick={() => setWeeks(weeks + 2)}
+    />
+  </span>
 );
 
 export default DaySection;
