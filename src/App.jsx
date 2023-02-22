@@ -20,9 +20,31 @@ const App = () => {
   // const cal = useCalendar(
   //   "https://calendar.google.com/calendar/ical/sammyboy1510%40gmail.com/public/basic.ics"
   // );
-  const blocks = useBlocks(cal?.data);
+  const blocks = useBlocks(cal?.data || []);
+  const [weeks, setWeeks] = useState(2);
+
+  const today = new Date();
+  const dates = Array.from(
+    { length: weeks * 7 - getDay(today) + 1 },
+    (_, i) => {
+      const nextDate = addDays(today, i);
+      return {
+        date: nextDate,
+        month: format(nextDate, "LLL"),
+        day: format(nextDate, "do"),
+      };
+    }
+  );
+  const enabledDates = dates.filter(
+    (d) => blocks.filter((b) => isSameDay(b.date, d.date)).length !== 0
+  );
+
   const [day, setDay] = useState("");
   const [block, setBlock] = useState("");
+
+  if (enabledDates.length > 0 && day === "") {
+    setDay(enabledDates[0].date);
+  }
 
   const url = getEventRequestUrl();
   if (url) {
@@ -41,7 +63,14 @@ const App = () => {
       <h1 className="font-bold text-2xl text-center">
         Schedule a time with Sam Holmberg
       </h1>
-      <DaySection value={day} onChange={setDay} blocks={blocks} />
+      <DaySection
+        value={day}
+        onChange={setDay}
+        blocks={blocks}
+        weeks={weeks}
+        setWeeks={setWeeks}
+        dates={dates}
+      />
       <Section
         logo={
           <path
@@ -129,22 +158,7 @@ const PaginateButton = ({ left, right, ...rest }) => {
   );
 };
 
-const DaySection = ({ value, onChange, blocks }) => {
-  const [weeks, setWeeks] = useState(2);
-
-  const today = new Date();
-  const dates = Array.from(
-    { length: weeks * 7 - getDay(today) + 1 },
-    (_, i) => {
-      const nextDate = addDays(today, i);
-      return {
-        date: nextDate,
-        month: format(nextDate, "LLL"),
-        day: format(nextDate, "do"),
-      };
-    }
-  );
-
+const DaySection = ({ value, onChange, blocks, weeks, dates, setWeeks }) => {
   return (
     <Section
       logo={
@@ -395,8 +409,28 @@ const useBlocks = (data) => {
 };
 
 const useCalendar = (url) => {
-  return {
-    data: ical.parseICS(`BEGIN:VCALENDAR
+  // return devData()
+  const [cal, setCal] = useState();
+
+  useEffect(() => {
+    fetch("https://corsproxy.io/?" + url)
+      .then((resp) => {
+        if (resp.ok) {
+          resp.text().then((text) => setCal({ data: ical.parseICS(text) }));
+        } else {
+          resp.text().then((text) => setCal({ error: text }));
+        }
+      })
+      .catch((error) => {
+        setCal({ error: error.message });
+      });
+  }, []);
+
+  return cal;
+};
+
+const devData = () => ({
+  data: ical.parseICS(`BEGIN:VCALENDAR
 PRODID:-//Google Inc//Google Calendar 70.9054//EN
 VERSION:2.0
 CALSCALE:GREGORIAN
@@ -404,7 +438,7 @@ METHOD:PUBLISH
 X-WR-CALNAME:Social Availability Schedule
 X-WR-TIMEZONE:America/Los_Angeles
 X-WR-CALDESC:This calendar has the purpose of showing my typical week of so
- cial availability.
+cial availability.
 BEGIN:VTIMEZONE
 TZID:America/Los_Angeles
 X-LIC-LOCATION:America/Los_Angeles
@@ -589,25 +623,6 @@ SUMMARY:Brunch Meetup
 TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR`),
-  };
-
-  const [cal, setCal] = useState();
-
-  useEffect(() => {
-    fetch("https://corsproxy.io/?" + url)
-      .then((resp) => {
-        if (resp.ok) {
-          resp.text().then((text) => setCal({ data: ical.parseICS(text) }));
-        } else {
-          resp.text().then((text) => setCal({ error: text }));
-        }
-      })
-      .catch((error) => {
-        setCal({ error: error.message });
-      });
-  }, []);
-
-  return cal;
-};
+});
 
 export default App;
