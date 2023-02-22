@@ -11,18 +11,14 @@ import ical from "ical";
 import { rrulestr } from "rrule";
 import { Redirect } from "./components/request";
 import Section from "./components/Section";
-import Error from "./components/Error";
 import BlockSection, { BlockButton } from "./components/block";
 import DaySection, { DayButton } from "./components/day";
 import DetailsSection from "./components/DetailsSection";
+import config from "./config";
 
 const App = () => {
-  const cal = useCalendar(
-    "https://calendar.google.com/calendar/ical/d721a6f85d1f6a5df9ef3efa7d550de29c3581e4cede18de74329a681a33bb8b%40group.calendar.google.com/public/basic.ics"
-  );
-  const plans = useCalendar(
-    "https://calendar.google.com/calendar/ical/sammyboy1510%40gmail.com/public/basic.ics"
-  );
+  const cal = useCalendar(config.cal);
+  const plans = useCalendar(config.plans);
 
   const [weeks, setWeeks] = useState(2);
   const [day, setDay] = useState("");
@@ -39,7 +35,7 @@ const App = () => {
     <Redirect error={cal?.error}>
       <div className="max-w-lg box-content px-4 mx-auto my-20 flex flex-col gap-20">
         <h1 className="font-bold text-2xl text-center">
-          Schedule a time with Sam Holmberg
+          Schedule a time with {config.name}
         </h1>
         <Section
           logo={

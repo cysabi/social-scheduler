@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import Error from "./Error";
+import config from "../config";
 
 export const Button = ({ createUrl, ...rest }) => {
   let [value, setValue] = useState("");
@@ -30,7 +31,7 @@ export const Button = ({ createUrl, ...rest }) => {
             <div>
               <div className="font-semibold text-xl">Request Created</div>
               <div className="text-lg font-medium">
-                Copy this url, and send it to Sam Holmberg
+                Copy this url, and send it to {config.name}
               </div>
             </div>
             <div className="flex items-center justify-between">
