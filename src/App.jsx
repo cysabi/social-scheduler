@@ -18,13 +18,14 @@ import config from "./config";
 
 const App = () => {
   const cal = useCalendar(config.cal);
-  const plans = useCalendar(config.plans);
+  const plans0 = useCalendar(config.plans[0]);
+  const plans1 = useCalendar(config.plans[1]);
 
   const [weeks, setWeeks] = useState(2);
   const [day, setDay] = useState("");
   const [block, setBlock] = useState("");
 
-  const blocks = useBlocks(cal?.data, plans?.data);
+  const blocks = useBlocks(cal?.data, [plans0?.data, plans1?.data]);
   const [dates, enabledDates] = useDates(blocks, weeks);
 
   if (enabledDates.length > 0 && day === "") {
@@ -127,18 +128,18 @@ const useDates = (blocks, weeks) => {
 
 const useBlocks = (data, plansData) => {
   const blocks = useMemo(() => {
-    const blocks = [];
-    if (!data || !plansData) return blocks;
+    if (!data || plansData.includes(undefined)) return [];
+
     const now = new Date();
+    const then = add(now, { weeks: 8 });
+
+    const blocks = [];
     Object.values(data)
       .filter((event) => event.type === "VEVENT")
       .forEach((event) => {
-        const rule = event.rrule
-          ? rrulestr(event.rrule.toString(), { dtstart: event.start })
-          : undefined;
-        if (rule) {
-          rule
-            .between(now, new Date(now.getTime() + 8 * 7 * 24 * 60 * 60 * 1000))
+        if (event.rrule) {
+          rrulestr(event.rrule.toString())
+            .between(now, then)
             .forEach((occurrence) => {
               blocks.push({
                 ...event,
@@ -158,15 +159,11 @@ const useBlocks = (data, plansData) => {
           });
         }
       });
-    const plans = [];
-    Object.values(plansData)
-      .filter((event) => (event.type = "VEVENT"))
-      .forEach((event) => {
-        if (event.start > now) {
-          plans.push({ ...event, date: event.start, id: event.uid });
-        }
-      });
-    console.log(blocks, plans);
+
+    const plans = plansData
+      .flatMap((p) => Object.values(p))
+      .filter((event) => (event.type = "VEVENT" && event.start > now));
+
     return blocks.filter(
       (b) =>
         plans.filter((p) =>
