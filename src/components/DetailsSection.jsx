@@ -1,4 +1,4 @@
-import { formatISO } from "date-fns";
+import { formatISO, set } from "date-fns";
 import { useState } from "react";
 import { Button } from "./request";
 import Section from "./Section";
@@ -7,6 +7,10 @@ const DetailsSection = ({ block }) => {
   const [name, setName] = useState("");
   const [details, setDetails] = useState("");
   const [location, setLocation] = useState("");
+  const [checked, setChecked] = useState(false);
+  const [time, setTime] = useState("");
+
+  const start = getDate(block.date, checked, time);
 
   return (
     <>
@@ -38,15 +42,33 @@ const DetailsSection = ({ block }) => {
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Location (optional)"
         />
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-4">
+            <input
+              type="checkbox"
+              value={checked}
+              onChange={() => setChecked(!checked)}
+              className="h-6 w-6 rounded-md"
+            />
+            <p>Custom Start Time?</p>
+          </div>
+          <input
+            type="time"
+            value={time}
+            disabled={!checked}
+            onChange={(e) => setTime(e.target.value)}
+            placeholder="Start Date (optional)"
+          />
+        </div>
       </Section>
       <Button
-        disabled={!block || !name}
+        disabled={!block || !name || !start}
         createUrl={() => {
           const searchParams = new URLSearchParams({
             text: `${block.summary} with ${name}`,
             details,
             location,
-            start: formatISO(block.date, { format: "basic" }),
+            start: formatISO(start, { format: "basic" }),
             end: formatISO(block.endDate, { format: "basic" }),
           });
           return window.location.href + "?" + searchParams.toString();
@@ -54,6 +76,19 @@ const DetailsSection = ({ block }) => {
       />
     </>
   );
+};
+
+const getDate = (date, checked, time) => {
+  if (!checked) {
+    return date;
+  }
+  if (!time) {
+    return false;
+  }
+  return set(date, {
+    hours: time.split(":")[0],
+    minutes: time.split(":")[1],
+  });
 };
 
 export default DetailsSection;
