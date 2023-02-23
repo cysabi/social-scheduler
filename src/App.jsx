@@ -33,7 +33,7 @@ const App = () => {
 
   return (
     <Redirect error={cal?.error}>
-      <div className="max-w-lg box-content px-4 mx-auto my-20 flex flex-col gap-20">
+      <div className="max-w-lg box-content px-4 mx-auto flex flex-col my-12 gap-12 sm:my-20 sm:gap-20">
         <h1 className="font-bold text-2xl text-center">
           Schedule a time with {config.name}
         </h1>
