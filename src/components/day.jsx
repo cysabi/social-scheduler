@@ -39,8 +39,8 @@ const DaySection = ({ value, onChange, dates, disabled }) => (
                 : "cursor-pointer"
             }`}
           >
-            <p>{d.month}</p>
-            <p>{d.day}</p>
+            <p className="mx-auto w-10">{d.month}</p>
+            <p className="mx-auto w-10">{d.day}</p>
           </div>
         )}
       </RadioGroup.Option>
