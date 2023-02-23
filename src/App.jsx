@@ -3,7 +3,7 @@ import {
   format,
   isSameDay,
   add,
-  differenceInSeconds,
+  differenceInMinutes,
   getDay,
   areIntervalsOverlapping,
 } from "date-fns";
@@ -145,7 +145,7 @@ const useBlocks = (data, plansData) => {
                 ...event,
                 date: occurrence,
                 endDate: add(occurrence, {
-                  seconds: differenceInSeconds(event.end, event.start),
+                  minutes: differenceInMinutes(event.end, event.start),
                 }),
                 id: event.uid + occurrence.toString(),
               });
@@ -159,11 +159,9 @@ const useBlocks = (data, plansData) => {
           });
         }
       });
-
     const plans = plansData
       .flatMap((p) => Object.values(p))
       .filter((event) => (event.type = "VEVENT" && event.start > now));
-
     return blocks.filter(
       (b) =>
         plans.filter((p) =>

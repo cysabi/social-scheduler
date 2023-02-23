@@ -1,4 +1,4 @@
-import { getDay } from "date-fns";
+import { getDay, isSameDay } from "date-fns";
 import { RadioGroup } from "@headlessui/react";
 import PaginateButton from "./PaginateButton";
 
@@ -7,7 +7,7 @@ const DaySection = ({ value, onChange, dates, disabled }) => (
     className="flex flex-wrap sm:grid sm:grid-cols-7 gap-3"
     value={value}
     onChange={onChange}
-    by={(a, b) => (a && b ? a.toString() === b.toString() : undefined)}
+    by={(a, b) => (a && b ? isSameDay(a, b) : undefined)}
   >
     {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day) => (
       <p

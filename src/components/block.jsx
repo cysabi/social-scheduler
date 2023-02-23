@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { RadioGroup } from "@headlessui/react";
 import PaginateButton from "./PaginateButton";
 
@@ -31,7 +31,7 @@ const BlockSection = ({ value, onChange, blocks }) => (
 );
 
 export const BlockButton = ({ enabledDates, day, setDay }) => {
-  const i = enabledDates.findIndex((d) => d.date.toString() === day.toString());
+  const i = enabledDates.findIndex((d) => isSameDay(d.date, day));
   return (
     <span className="shrink-0 inline-flex gap-1 px-1.5 items-center tracking-normal font-medium text-slate-50 rounded-md border-2 border-slate-600">
       <PaginateButton
