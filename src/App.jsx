@@ -19,8 +19,7 @@ import Filters from "./components/Filters";
 
 const App = () => {
   const cal = useCalendar(config.cal);
-  const plans0 = useCalendar(config.plans[0]);
-  const plans1 = useCalendar(config.plans[1]);
+  const plans = config.plans.map((plan) => useCalendar(plan));
 
   const [weeks, setWeeks] = useState(4);
   const [day, setDay] = useState("");
@@ -51,7 +50,10 @@ const App = () => {
     setIsOpen(true);
   };
 
-  const blocks = useBlocks(cal?.data, [plans0?.data, plans1?.data]);
+  const blocks = useBlocks(
+    cal?.data,
+    plans?.map((p) => p?.data)
+  );
   const [dates, enabledDates] = useDates(blocks, weeks, filterFn);
 
   useEffect(() => {
@@ -230,15 +232,40 @@ const useBlocks = (data, plansData) => {
           });
         }
       });
-    const plans = plansData
+
+    const planBlocks = [];
+    plansData
       .flatMap((p) => Object.values(p))
-      .filter((event) => (event.type = "VEVENT" && event.start > now));
+      .filter((event) => (event.type = "VEVENT"))
+      .forEach((event) => {
+        if (event.recurrences) {
+          Object.entries(event.recurrences).forEach((val) => {
+            const occurrence = val[1].start;
+            planBlocks.push({
+              ...event,
+              date: occurrence,
+              endDate: add(occurrence, {
+                minutes: differenceInMinutes(event.end, event.start),
+              }),
+              id: event.uid + occurrence.toString(),
+            });
+          });
+        }
+        if (event.start > now) {
+          planBlocks.push({
+            ...event,
+            date: event.start,
+            endDate: event.end,
+            id: event.uid,
+          });
+        }
+      });
     return blocks.filter(
       (b) =>
-        plans.filter((p) =>
+        planBlocks.filter((p) =>
           areIntervalsOverlapping(
             { start: b.date, end: b.endDate },
-            { start: p.start, end: p.end }
+            { start: p.date, end: p.endDate }
           )
         ).length === 0
     );
@@ -262,7 +289,7 @@ const useCalendar = (url) => {
       .catch((error) => {
         setCal({ error: error.message });
       });
-  }, []);
+  }, [url]);
 
   return cal;
 };
