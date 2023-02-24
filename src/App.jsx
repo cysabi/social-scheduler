@@ -22,7 +22,7 @@ const App = () => {
   const plans0 = useCalendar(config.plans[0]);
   const plans1 = useCalendar(config.plans[1]);
 
-  const [weeks, setWeeks] = useState(2);
+  const [weeks, setWeeks] = useState(4);
   const [day, setDay] = useState("");
   const [block, setBlock] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -35,9 +35,10 @@ const App = () => {
   const [evening, setEvening] = useState(false);
 
   const filterFn = (block) => {
-    if (lunch && block.summary.includes("Lunch")) return true;
-    if (dinner && block.summary.includes("Dinner")) return true;
-    if (work && block.summary.includes("Work")) return true;
+    if (lunch && block.summary?.includes("Lunch")) return true;
+    if (dinner && block.summary?.includes("Dinner")) return true;
+    if (work && block.summary?.includes("Work") && block.date.getHours() < 17)
+      return true;
     if (afternoon && block.date.getHours() >= 12 && block.date.getHours() < 18)
       return true;
     if (evening && block.date.getHours() >= 18) return true;
@@ -51,11 +52,21 @@ const App = () => {
   };
 
   const blocks = useBlocks(cal?.data, [plans0?.data, plans1?.data]);
-  const [dates, enabledDates] = useDates(blocks, weeks);
+  const [dates, enabledDates] = useDates(blocks, weeks, filterFn);
 
-  if (enabledDates.length > 0 && day === "") {
-    setDay(enabledDates[0].date);
-  }
+  useEffect(() => {
+    console.log(enabledDates.map((d) => d.date.toString()));
+    console.log(
+      enabledDates.findIndex((d) => d.date.toString() === day.toString())
+    );
+    console.log(day);
+    if (
+      enabledDates.length > 0 &&
+      enabledDates.findIndex((d) => d.date.toString() === day.toString()) === -1
+    ) {
+      setDay(enabledDates[0].date);
+    }
+  }, [enabledDates, day]);
 
   return (
     <Redirect error={cal?.error}>
@@ -158,12 +169,10 @@ const getUpcomingWeek = (day) => {
   return week;
 };
 
-const useDates = (blocks, weeks) => {
+const useDates = (blocks, weeks, filterFn) => {
   const [dates, enabledDates] = useMemo(() => {
-    let today = new Date();
-    // today = add(today, {
-    //   days: -getDay(today) + 1,
-    // });
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
     const dates = Array.from(
       { length: weeks * 7 - getDay(today) + 1 },
       (_, i) => {
@@ -174,16 +183,19 @@ const useDates = (blocks, weeks) => {
           day: format(nextDate, "do"),
           weekDay: format(nextDate, "EEE"),
           altLabel:
-            nextDate.getTime() == today.getTime()
+            nextDate.getTime() === today.getTime()
               ? "Today"
-              : nextDate.getTime() == today.getTime() + 60 * 60 * 24000
+              : nextDate.getTime() === today.getTime() + 60 * 60 * 24000
               ? "Tmrw"
               : undefined,
         };
       }
     );
     const enabledDates = dates.filter(
-      (d) => blocks.filter((b) => isSameDay(b.date, d.date)).length !== 0
+      (d) =>
+        blocks
+          .filter((b) => isSameDay(b.date, d.date))
+          .filter((b) => filterFn(b)).length !== 0
     );
     return [dates, enabledDates];
   }, [blocks, weeks]);
