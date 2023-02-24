@@ -25,8 +25,15 @@ const App = () => {
   const [day, setDay] = useState("");
   const [block, setBlock] = useState("");
 
+  const setBlockShowDetails = (block) => {
+    setBlock(block);
+    setIsOpen(true);
+  };
+
   const blocks = useBlocks(cal?.data, [plans0?.data, plans1?.data]);
   const [dates, enabledDates] = useDates(blocks, weeks);
+
+  let [isOpen, setIsOpen] = useState(true);
 
   if (enabledDates.length > 0 && day === "") {
     setDay(enabledDates[0].date);
@@ -34,8 +41,8 @@ const App = () => {
 
   return (
     <Redirect error={cal?.error}>
-      <div className="max-w-lg box-content px-4 mx-auto flex flex-col my-12 gap-12 sm:my-20 sm:gap-20">
-        <h1 className="font-bold text-2xl text-center">
+      <div className="max-w-lg box-content px-4 mx-auto flex flex-col my-10 gap-10 sm:my-20 sm:gap-20">
+        <h1 className="font-bold text-lg text-center">
           Schedule a time with {config.name}
         </h1>
         <Section
@@ -48,8 +55,7 @@ const App = () => {
           }
           title={
             <span className="inline-flex gap-2.5 flex-wrap items-center">
-              <span>Pick a day from the next </span>
-              <DayButton weeks={weeks} setWeeks={setWeeks} />
+              <span>Pick a day</span>
             </span>
           }
         >
@@ -70,23 +76,30 @@ const App = () => {
           }
           title={
             <span className="inline-flex gap-2.5 flex-wrap items-center">
-              <span>Pick a block for</span>
-              {day && (
+              <span>Pick an event</span>
+              {/* {day && (
                 <BlockButton
                   enabledDates={enabledDates}
                   day={day}
                   setDay={setDay}
                 />
-              )}
+              )} */}
             </span>
           }
         >
           {day ? (
-            <BlockSection
-              value={block}
-              onChange={setBlock}
-              blocks={blocks.filter((b) => isSameDay(b.date, day))}
-            />
+            getUpcomingWeek(day).map((day) => (
+              <>
+                <div className="text-right bg-slate-600 px-2 rounded-md text-xs">
+                  {format(day, "EEEE, LLL do")}
+                </div>
+                <BlockSection
+                  value={block}
+                  onChange={setBlockShowDetails}
+                  blocks={blocks.filter((b) => isSameDay(b.date, day))}
+                />
+              </>
+            ))
           ) : (
             <div className="rounded-lg flex items-center bg-slate-700 justify-between flex-wrap font-medium p-4">
               <p className="w-full text-center text-slate-400">
@@ -95,18 +108,26 @@ const App = () => {
             </div>
           )}
         </Section>
-        <DetailsSection block={block} />
+        <DetailsSection block={block} isOpen={isOpen} setIsOpen={setIsOpen} />
       </div>
     </Redirect>
   );
 };
 
+const getUpcomingWeek = (day) => {
+  const week = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+    return add(day, { days: i });
+  });
+  console.log(week);
+  return week;
+};
+
 const useDates = (blocks, weeks) => {
   const [dates, enabledDates] = useMemo(() => {
     let today = new Date();
-    today = add(today, {
-      days: -getDay(today) + 1,
-    });
+    // today = add(today, {
+    //   days: -getDay(today) + 1,
+    // });
     const dates = Array.from(
       { length: weeks * 7 - getDay(today) + 1 },
       (_, i) => {
@@ -115,6 +136,13 @@ const useDates = (blocks, weeks) => {
           date: nextDate,
           month: format(nextDate, "LLL"),
           day: format(nextDate, "do"),
+          weekDay: format(nextDate, "EEE"),
+          altLabel:
+            nextDate.getTime() == today.getTime()
+              ? "Today"
+              : nextDate.getTime() == today.getTime() + 60 * 60 * 24000
+              ? "Tmrw"
+              : undefined,
         };
       }
     );
