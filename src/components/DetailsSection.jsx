@@ -20,7 +20,7 @@ const DetailsSection = ({ block, isOpen, setIsOpen }) => {
       className="relative z-50"
     >
       <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
-      <div className="fixed inset-0 flex sm:items-center justify-center items-end">
+      <div className="fixed inset-0 flex sm:items-center justify-center items-center">
         <Dialog.Panel className="max-w-sm rounded-md bg-slate-700 border-slate-500 border-2 p-4">
           <>
             <Section

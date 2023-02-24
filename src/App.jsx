@@ -24,6 +24,7 @@ const App = () => {
   const [weeks, setWeeks] = useState(2);
   const [day, setDay] = useState("");
   const [block, setBlock] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   const setBlockShowDetails = (block) => {
     setBlock(block);
@@ -32,8 +33,6 @@ const App = () => {
 
   const blocks = useBlocks(cal?.data, [plans0?.data, plans1?.data]);
   const [dates, enabledDates] = useDates(blocks, weeks);
-
-  let [isOpen, setIsOpen] = useState(true);
 
   if (enabledDates.length > 0 && day === "") {
     setDay(enabledDates[0].date);
