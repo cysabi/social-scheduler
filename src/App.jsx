@@ -55,14 +55,9 @@ const App = () => {
   const [dates, enabledDates] = useDates(blocks, weeks, filterFn);
 
   useEffect(() => {
-    console.log(enabledDates.map((d) => d.date.toString()));
-    console.log(
-      enabledDates.findIndex((d) => d.date.toString() === day.toString())
-    );
-    console.log(day);
     if (
       enabledDates.length > 0 &&
-      enabledDates.findIndex((d) => d.date.toString() === day.toString()) === -1
+      !enabledDates.find((d) => d.date.toString() === day.toString())
     ) {
       setDay(enabledDates[0].date);
     }
