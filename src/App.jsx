@@ -35,7 +35,6 @@ const App = () => {
   const [evening, setEvening] = useState(false);
 
   const filterFn = (block) => {
-    console.log("filtering");
     if (lunch && block.summary.includes("Lunch")) return true;
     if (dinner && block.summary.includes("Dinner")) return true;
     if (work && block.summary.includes("Work")) return true;
