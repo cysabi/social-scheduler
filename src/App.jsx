@@ -11,8 +11,8 @@ import ical from "ical";
 import { rrulestr } from "rrule";
 import { Redirect } from "./components/request";
 import Section from "./components/Section";
-import BlockSection, { BlockButton } from "./components/block";
-import DaySection, { DayButton } from "./components/day";
+import BlockSection from "./components/block";
+import DaySection from "./components/day";
 import DetailsSection from "./components/DetailsSection";
 import config from "./config";
 import Filters from "./components/Filters";
@@ -130,8 +130,8 @@ const App = () => {
         <Section>
           {day ? (
             getUpcomingWeek(day).map((day) => (
-              <>
-                <div className="text-right bg-slate-600 px-2 rounded-md text-xs">
+              <div key={day.getTime()}>
+                <div className="text-right bg-slate-600 px-2 rounded-md text-xs mb-4">
                   {format(day, "EEEE, LLL do")}
                 </div>
                 <BlockSection
@@ -141,7 +141,7 @@ const App = () => {
                     .filter((b) => isSameDay(b.date, day))
                     .filter((b) => filterFn(b))}
                 />
-              </>
+              </div>
             ))
           ) : (
             <div className="rounded-lg flex items-center bg-slate-700 justify-between flex-wrap font-medium p-4">
