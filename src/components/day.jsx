@@ -8,7 +8,7 @@ const DaySection = ({ value, onChange, dates, disabled }) => (
     onChange={onChange}
     by={(a, b) => (a && b ? isSameDay(a, b) : undefined)}
   >
-    <span className="flex gap-3 overflow-scroll">
+    <span className="flex gap-3 overflow-scroll bg-slate-800">
       {dates.map((d) => (
         <RadioGroup.Option
           key={d.date}
