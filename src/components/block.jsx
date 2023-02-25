@@ -33,7 +33,7 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
                 <Fragment key={block.id}>
                   {(i === 0 ||
                     !isSameDay(block.date, filteredBlocks[i - 1].date)) && (
-                    <div className="font-medium tracking-wide mt-3 mb-1 text-slate-400">
+                    <div className="font-medium tracking-wide mt-2 text-slate-400">
                       {format(block.date, "EEEE, LLL do")}
                     </div>
                   )}
