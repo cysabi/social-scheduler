@@ -289,7 +289,7 @@ const ConfirmSection = ({ block, setBlock, setSuccess }) => {
           value={time}
           onChange={(e) => setTime(e.target.value)}
         />
-        <Input
+        {/* <Input
           icon={
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -310,7 +310,7 @@ const ConfirmSection = ({ block, setBlock, setSuccess }) => {
           type="email"
           onChange={(e) => setEmailTo(e.target.value)}
           placeholder="Email invite (optional)"
-        />
+        /> */}
       </div>
       <div className="flex items-center flex-row-reverse justify-start flex-wrap gap-4">
         <button
