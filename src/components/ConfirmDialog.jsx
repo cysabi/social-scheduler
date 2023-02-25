@@ -160,6 +160,29 @@ const ConfirmSection = ({ block, setBlock, setSuccess }) => {
     if (block.date) setTime(format(block.date, "HH:mm"));
   }, [block]);
 
+  const text = `${details ? details : block.summary}${name && ` w/ ${name}`}`;
+
+  const createEvent = () => {
+    localStorage.setItem("name", name);
+    const searchParams = new URLSearchParams({
+      text,
+      location,
+      start: formatISO(getDate(block.date, time), { format: "basic" }),
+      end: formatISO(block.endDate, { format: "basic" }),
+    });
+    if (config.api) {
+      fetch(config.api + "?" + searchParams.toString())
+        .then((resp) => {
+          resp.ok
+            ? resp.json().then((data) => setSuccess([true, data]))
+            : resp.json().then((data) => setSuccess([false, data]));
+        })
+        .catch((error) => setSuccess([false, error]));
+    } else {
+      setSuccess([true, window.location.href + "?" + searchParams.toString()]);
+    }
+  };
+
   return (
     <Section
       logo={
@@ -174,10 +197,7 @@ const ConfirmSection = ({ block, setBlock, setSuccess }) => {
     >
       <div className="flex p-4 rounded-lg justify-between bg-yellow-500 text-yellow-900">
         <span className="font-semibold">
-          <span className="text-black">
-            {details ? details : block.summary}
-            {name && ` w/ ${name}`}
-          </span>
+          <span className="text-black">{text}</span>
           <div className="text-sm text-yellow-900">
             {location && `@ ${location}`}
             {` ~ ${
@@ -314,34 +334,9 @@ const ConfirmSection = ({ block, setBlock, setSuccess }) => {
       </div>
       <div className="flex items-center flex-row-reverse justify-start flex-wrap gap-4">
         <button
-          disabled={!block || !name}
+          disabled={!name}
           className="disabled:cursor-not-allowed py-2 px-3 text-white rounded-md bg-yellow-600 disabled:bg-yellow-600/80 disabled:text-white/80 font-semibold tracking-wider uppercase"
-          onClick={() => {
-            localStorage.setItem("name", name);
-            const searchParams = new URLSearchParams({
-              start: formatISO(getDate(block.date, time), {
-                format: "basic",
-              }),
-              end: formatISO(block.endDate, { format: "basic" }),
-              title: `${block.summary} with ${name}`,
-              description: details,
-              location,
-            });
-            if (config.api) {
-              fetch(config.api + "?" + searchParams.toString())
-                .then((resp) => {
-                  resp.ok
-                    ? resp.json().then((data) => setSuccess([true, data]))
-                    : resp.json().then((data) => setSuccess([false, data]));
-                })
-                .catch((error) => setSuccess([false, error]));
-            } else {
-              setSuccess([
-                true,
-                window.location.href + "?" + searchParams.toString(),
-              ]);
-            }
-          }}
+          onClick={createEvent}
         >
           Create Event
         </button>

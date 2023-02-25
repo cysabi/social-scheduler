@@ -4,7 +4,6 @@ import {
   isSameDay,
   add,
   differenceInMinutes,
-  getDay,
   areIntervalsOverlapping,
 } from "date-fns";
 import ical from "ical";

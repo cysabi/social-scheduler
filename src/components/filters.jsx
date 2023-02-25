@@ -1,7 +1,7 @@
+import { useEffect, useState } from "react";
 import { isSameDay } from "date-fns";
 import { RadioGroup, Listbox } from "@headlessui/react";
 import Section from "./Section";
-import { useEffect, useState } from "react";
 
 const allTopics = ["lunch", "dinner", "work", "afternoon", "evening"];
 

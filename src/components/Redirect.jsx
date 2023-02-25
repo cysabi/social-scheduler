@@ -7,12 +7,15 @@ const Redirect = ({ error, children }) => {
   if (params.text) {
     try {
       let url = "https://www.google.com/calendar/render?action=TEMPLATE";
-      url += "&text=" + params.title;
-      url += "&details=" + params.description;
+      url += "&text=" + params.text;
       url += "&location=" + params.location;
       url += "&dates=" + params.start + "/" + params.end;
       window.location.href = url;
-      return null;
+      return (
+        <div className="h-screen flex items-center justify-center w-screen text-xl text-slate-500">
+          <p>Redirecting...</p>
+        </div>
+      );
     } catch {
       return (
         <Error error="Invalid request url! Make sure it's been copied it correctly." />
