@@ -65,6 +65,25 @@ const App = () => {
     }
   }, [enabledDates, day]);
 
+  useEffect(() => {
+    const queryParams = window.location.search;
+    if (queryParams.includes("lunch")) {
+      setLunch(true);
+    }
+    if (queryParams.includes("dinner")) {
+      setDinner(true);
+    }
+    if (queryParams.includes("work")) {
+      setWork(true);
+    }
+    if (queryParams.includes("afternoon")) {
+      setAfternoon(true);
+    }
+    if (queryParams.includes("evening")) {
+      setEvening(true);
+    }
+  }, []);
+
   return (
     <Redirect error={cal?.error}>
       <div className="max-w-lg box-content px-4 mx-auto flex flex-col mt-64 gap-4 sm:my-20 sm:gap-20">
