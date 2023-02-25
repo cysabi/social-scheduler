@@ -20,7 +20,7 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
       className="flex flex-col flex-1 gap-2 min-h-0"
       title="Pick a block"
     >
-      <div className="overflow-y-auto rounded-lg after:bg-slate-300">
+      <div className="overflow-y-auto rounded after:bg-slate-300">
         {day ? (
           <RadioGroup
             value={value}
@@ -70,8 +70,9 @@ const BlockHeadings = ({ prevDate, date }) => {
     prevDate === undefined
       ? [date]
       : eachDayOfInterval({ start: prevDate, end: date });
+  if (prevDate !== undefined) days.shift();
   return days.map((day) => (
-    <div className="flex items-center gap-4" key={day}>
+    <div className="flex items-center gap-3" key={day}>
       <div className="border-b-2 border-slate-700 border-dotted flex-1" />
       <div
         key={day}
