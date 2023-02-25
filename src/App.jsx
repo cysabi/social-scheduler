@@ -56,7 +56,7 @@ const App = () => {
           Schedule with {config.name}
         </h1>
       </div>
-      <div className="max-w-xl h-screen mx-auto flex flex-col sm:gap-8">
+      <div className="max-w-xl h-screen mx-auto flex flex-col">
         <div className="bg-slate-800 items-center justify-between px-4 pt-4">
           <FilterSection>
             <TopicsFilter topics={topics} setTopics={setTopics} />
