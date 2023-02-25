@@ -51,12 +51,13 @@ const App = () => {
 
   return (
     <Redirect error={cal?.error}>
-      <div className="max-w-xl h-screen p-4 mx-auto flex flex-col gap-4 sm:gap-8">
-        <h1 className="font-bold text-xl sm:text-2xl text-center">
-          {config.name}'s Social Scheduler
+      <div className="bg-slate-700 py-3">
+        <h1 className="font-semibold text-xl sm:text-2xl text-center">
+          Schedule with {config.name}
         </h1>
-        <div className="border-t-2 border-slate-700" />
-        <div className="bg-slate-800 items-center justify-between">
+      </div>
+      <div className="max-w-xl h-screen mx-auto flex flex-col">
+        <div className="bg-slate-800 items-center justify-between px-4 pt-4">
           <FilterSection>
             <TopicsFilter topics={topics} setTopics={setTopics} />
             <DayFilter
