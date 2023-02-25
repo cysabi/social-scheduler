@@ -160,15 +160,15 @@ const ConfirmSection = ({ block, setBlock, setSuccess }) => {
     if (block.date) setTime(format(block.date, "HH:mm"));
   }, [block]);
 
-  const text = `${details ? details : block.summary}${name && ` w/ ${name}`}`;
+  const title = `${details ? details : block.summary}${name && ` w/ ${name}`}`;
 
   const createEvent = () => {
     localStorage.setItem("name", name);
     const searchParams = new URLSearchParams({
-      text,
+      title,
       location,
-      start: formatISO(getDate(block.date, time), { format: "basic" }),
-      end: formatISO(block.endDate, { format: "basic" }),
+      start: formatISO(getDate(block.date, time)),
+      end: formatISO(block.endDate),
     });
     if (config.api) {
       fetch(config.api + "?" + searchParams.toString())
@@ -197,7 +197,7 @@ const ConfirmSection = ({ block, setBlock, setSuccess }) => {
     >
       <div className="flex p-4 rounded-lg justify-between bg-yellow-500 text-yellow-900">
         <span className="font-semibold">
-          <span className="text-black">{text}</span>
+          <span className="text-black">{title}</span>
           <div className="text-sm text-yellow-900">
             {location && `@ ${location}`}
             {` ~ ${
