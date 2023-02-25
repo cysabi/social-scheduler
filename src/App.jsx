@@ -170,24 +170,21 @@ const useDates = (blocks) => {
   const [dates, enabledDates] = useMemo(() => {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
-    const dates = Array.from(
-      { length: weeks * 7 - getDay(today) + 1 },
-      (_, i) => {
-        const nextDate = add(today, { days: i });
-        return {
-          date: nextDate,
-          month: format(nextDate, "LLL"),
-          day: format(nextDate, "d"),
-          weekDay: format(nextDate, "EEE"),
-          altLabel:
-            nextDate.getTime() === today.getTime()
-              ? "Today"
-              : nextDate.getTime() === today.getTime() + 60 * 60 * 24000
-              ? "Tmrw"
-              : undefined,
-        };
-      }
-    );
+    const dates = Array.from({ length: weeks * 7 }, (_, i) => {
+      const nextDate = add(today, { days: i });
+      return {
+        date: nextDate,
+        month: format(nextDate, "LLL"),
+        day: format(nextDate, "d"),
+        weekDay: format(nextDate, "EEE"),
+        altLabel:
+          nextDate.getTime() === today.getTime()
+            ? "Today"
+            : nextDate.getTime() === today.getTime() + 60 * 60 * 24000
+            ? "Tmrw"
+            : undefined,
+      };
+    });
     const enabledDates = dates.filter(
       (d) => blocks.filter((b) => isSameDay(b.date, d.date)).length !== 0
     );
