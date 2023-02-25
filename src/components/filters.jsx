@@ -85,7 +85,7 @@ export const TopicsFilter = ({ topics, setTopics }) => {
           <Listbox.Option key={t} value={t}>
             {({ selected }) => (
               <button
-                className={`border-2 border-slate-600 px-2 capitalize text-sm sm:text-base sm:uppercase py-0 rounded-full flex-col text-center hover:cursor-pointer ${
+                className={`border-2 border-slate-600 px-2 capitalize text-sm sm:text-base py-0 rounded-full flex-col text-center hover:cursor-pointer ${
                   selected
                     ? "border-transparent bg-yellow-500 text-black"
                     : "border-slate-600 hover:bg-slate-700"
