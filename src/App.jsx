@@ -15,13 +15,22 @@ import BlockSection from "./components/block";
 import DetailsSection from "./components/DetailsSection";
 import config from "./config";
 
+const weeks = 3;
+
+const rules = {
+  lunch: (b) => b.summary?.includes("Lunch"),
+  dinner: (b) => b.summary?.includes("Dinner"),
+  work: (b) => b.summary?.includes("Work") && b.date.getHours() < 17,
+  afternoon: (b) => b.date.getHours() >= 12 && b.date.getHours() < 18,
+  evening: (b) => b.date.getHours() >= 18,
+};
+
 const App = () => {
   const cal = useCalendar(config.cal);
   const plans = config.plans.map((plan) => useCalendar(plan));
 
   const [day, setDay] = useState("");
   const [block, setBlock] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
   const [topics, setTopics] = useState([]);
 
   const blocks = useBlocks(
@@ -34,30 +43,11 @@ const App = () => {
   useEffect(() => {
     if (
       enabledDates.length > 0 &&
-      !enabledDates.find((d) => isSameDay(d.date, day))
+      (day === "" || !enabledDates.find((d) => isSameDay(d.date, day)))
     ) {
       setDay(enabledDates[0].date);
     }
   }, [enabledDates, day]);
-
-  useEffect(() => {
-    const queryParams = window.location.search;
-    if (queryParams.includes("lunch")) {
-      setLunch(true);
-    }
-    if (queryParams.includes("dinner")) {
-      setDinner(true);
-    }
-    if (queryParams.includes("work")) {
-      setWork(true);
-    }
-    if (queryParams.includes("afternoon")) {
-      setAfternoon(true);
-    }
-    if (queryParams.includes("evening")) {
-      setEvening(true);
-    }
-  }, []);
 
   return (
     <Redirect error={cal?.error}>
@@ -81,25 +71,21 @@ const App = () => {
         <BlockSection
           day={day}
           value={block}
-          onChange={(v) => {
-            setBlock(v);
-            setIsOpen(true);
-          }}
+          onChange={setBlock}
           blocks={blocks}
         />
       </div>
-      <DetailsSection block={block} isOpen={isOpen} setIsOpen={setIsOpen} />
+      <DetailsSection block={block} setBlock={setBlock} />
     </Redirect>
   );
 };
 
 const useBlocks = (data, plansData, topics) => {
-  const now = new Date();
-  const then = add(now, { weeks: 8 });
-
   const blocks = useMemo(() => {
     if (!data || plansData.includes(undefined)) return [];
 
+    const now = new Date();
+    const then = add(now, { weeks });
     const blocks = [];
     Object.values(data)
       .filter((event) => event.type === "VEVENT")
@@ -117,7 +103,7 @@ const useBlocks = (data, plansData, topics) => {
                 id: event.uid + occurrence.toString(),
               });
             });
-        } else if (event.start > now) {
+        } else if (then > event.start && event.start > now) {
           blocks.push({
             ...event,
             date: event.start,
@@ -135,17 +121,19 @@ const useBlocks = (data, plansData, topics) => {
         if (event.recurrences) {
           Object.entries(event.recurrences).forEach((val) => {
             const occurrence = val[1].start;
-            planBlocks.push({
-              ...event,
-              date: occurrence,
-              endDate: add(occurrence, {
-                minutes: differenceInMinutes(event.end, event.start),
-              }),
-              id: event.uid + occurrence.toString(),
-            });
+            if (then > occurrence && occurrence > now) {
+              planBlocks.push({
+                ...event,
+                date: occurrence,
+                endDate: add(occurrence, {
+                  minutes: differenceInMinutes(event.end, event.start),
+                }),
+                id: event.uid + occurrence.toString(),
+              });
+            }
           });
         }
-        if (event.start > now) {
+        if (then > event.start && event.start > now) {
           planBlocks.push({
             ...event,
             date: event.start,
@@ -169,16 +157,9 @@ const useBlocks = (data, plansData, topics) => {
     if (!blocks.length) return [];
 
     return blocks.filter((b) => {
-      const rules = {
-        lunch: () => b.summary?.includes("Lunch"),
-        dinner: () => b.summary?.includes("Dinner"),
-        work: () => b.summary?.includes("Work") && b.date.getHours() < 17,
-        afternoon: () => b.date.getHours() >= 12 && b.date.getHours() < 18,
-        evening: () => b.date.getHours() >= 18,
-      };
       return topics.length === 0
         ? true
-        : topics.reduce((p, t) => (p ? p : rules[t]()), false);
+        : topics.reduce((p, t) => (p ? p : rules[t](b)), false);
     });
   }, [blocks, topics]);
 
@@ -186,7 +167,6 @@ const useBlocks = (data, plansData, topics) => {
 };
 
 const useDates = (blocks) => {
-  const weeks = 4;
   const [dates, enabledDates] = useMemo(() => {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
@@ -213,6 +193,7 @@ const useDates = (blocks) => {
     );
     return [dates, enabledDates];
   }, [blocks]);
+
   return [dates, enabledDates];
 };
 

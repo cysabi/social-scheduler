@@ -1,7 +1,7 @@
-import { getDay, isSameDay, format } from "date-fns";
+import { isSameDay } from "date-fns";
 import { RadioGroup, Listbox } from "@headlessui/react";
 import Section from "./Section";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const allTopics = ["lunch", "dinner", "work", "afternoon", "evening"];
 
@@ -61,30 +61,45 @@ export const DayFilter = ({ value, onChange, dates, disabled }) => (
   </RadioGroup>
 );
 
-export const TopicsFilter = ({ topics, setTopics }) => (
-  <Listbox value={topics} onChange={setTopics} multiple>
-    <Listbox.Options
-      static
-      className="flex justify-between overflow-x-scroll gap-1"
-    >
-      {allTopics.map((t) => (
-        <Listbox.Option key={t} value={t}>
-          {({ selected }) => (
-            <button
-              className={`border-2 border-slate-600 px-2 capitalize text-xs sm:text-base sm:uppercase py-1 rounded-md flex-col text-center hover:cursor-pointer font-medium ${
-                selected
-                  ? "border-yellow-500 bg-yellow-400/20"
-                  : "border-slate-600 hover:bg-slate-700"
-              }`}
-            >
-              {t}
-            </button>
-          )}
-        </Listbox.Option>
-      ))}
-    </Listbox.Options>
-  </Listbox>
-);
+export const TopicsFilter = ({ topics, setTopics }) => {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("topics")) {
+      setTopics([
+        ...topics,
+        ...params
+          .get("topics")
+          .split(",")
+          .filter((t) => allTopics.includes(t)),
+      ]);
+    }
+  }, []);
+
+  return (
+    <Listbox value={topics} onChange={setTopics} multiple>
+      <Listbox.Options
+        static
+        className="flex justify-between overflow-x-scroll gap-1"
+      >
+        {allTopics.map((t) => (
+          <Listbox.Option key={t} value={t}>
+            {({ selected }) => (
+              <button
+                className={`border-2 border-slate-600 px-2 capitalize text-xs sm:text-base sm:uppercase py-1 rounded-md flex-col text-center hover:cursor-pointer font-medium ${
+                  selected
+                    ? "border-yellow-500 bg-yellow-400/20"
+                    : "border-slate-600 hover:bg-slate-700"
+                }`}
+              >
+                {t}
+              </button>
+            )}
+          </Listbox.Option>
+        ))}
+      </Listbox.Options>
+    </Listbox>
+  );
+};
 
 const FilterChip = ({ name, value, children }) => {
   const [open, setOpen] = useState(false);

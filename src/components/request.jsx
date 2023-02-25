@@ -3,23 +3,18 @@ import { Dialog } from "@headlessui/react";
 import Error from "./Error";
 import config from "../config";
 
-export const Button = ({ createUrl, ...rest }) => {
+export const RedirectDialog = ({ children }) => {
   let [value, setValue] = useState("");
   let [open, setOpen] = useState(false);
   let [copied, setCopied] = useState(false);
-
   return (
     <>
-      <button
-        onClick={() => {
+      {children({
+        submit(url) {
+          setValue(url);
           setOpen(true);
-          setValue(createUrl());
-        }}
-        className="disabled:cursor-not-allowed py-2 px-3 text-white rounded-md bg-yellow-600 disabled:bg-yellow-600/80 disabled:text-white/80 font-bold tracking-wider uppercase"
-        {...rest}
-      >
-        Create Request
-      </button>
+        },
+      })}
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
@@ -101,8 +96,8 @@ export const Redirect = ({ error, children }) => {
   if (params.text) {
     try {
       let url = "https://www.google.com/calendar/render?action=TEMPLATE";
-      url += "&text=" + params.text;
-      url += "&details=" + params.details;
+      url += "&text=" + params.title;
+      url += "&details=" + params.description;
       url += "&location=" + params.location;
       url += "&dates=" + params.start + "/" + params.end;
       window.location.href = url;
