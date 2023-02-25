@@ -294,6 +294,7 @@ const Booked = ({ url }) => {
 };
 
 const Confirm = ({ name, createEvent, onClose, inputs }) => {
+  const [loading, setLoading] = useState(false);
   return (
     <>
       <div className="flex flex-col gap-2">
@@ -414,7 +415,10 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
         <button
           disabled={!name}
           className="disabled:cursor-not-allowed py-2 px-3 text-white rounded-md bg-yellow-600 disabled:bg-yellow-600/80 disabled:text-white/80 font-semibold tracking-wider uppercase"
-          onClick={createEvent}
+          onClick={() => {
+            setLoading(true);
+            createEvent();
+          }}
         >
           Create Event
         </button>

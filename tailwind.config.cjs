@@ -6,7 +6,7 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        sm: "544px",
+        sm: "576px",
       },
       fontFamily: {
         sans: ["Work Sans", ...defaultTheme.fontFamily.sans],
