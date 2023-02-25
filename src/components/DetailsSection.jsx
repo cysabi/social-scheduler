@@ -21,7 +21,7 @@ const DetailsSection = ({ block, isOpen, setIsOpen }) => {
     >
       <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
       <div className="fixed inset-0 flex sm:items-center justify-center items-center">
-        <Dialog.Panel className="max-w-sm rounded-md bg-slate-700 border-slate-500 border-2 p-4">
+        <Dialog.Panel className="max-w-md w-full rounded-md bg-slate-700 p-6 shadow-xl mx-4">
           <>
             <Section
               logo={
@@ -33,50 +33,47 @@ const DetailsSection = ({ block, isOpen, setIsOpen }) => {
               }
               title="Enter your details"
             >
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your Name"
-              />
-              <input
-                type="text"
-                value={details}
-                onChange={(e) => setDetails(e.target.value)}
-                placeholder="Additional Details (optional)"
-              />
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Location (optional)"
-              />
-              <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-4">
-                  <input
-                    type="checkbox"
-                    value={checked}
-                    onChange={() => setChecked(!checked)}
-                    className="h-6 w-6 rounded-md"
-                  />
-                  <p>Custom Start Time?</p>
-                </div>
+              <div className="my-6 flex flex-col gap-3 items-stretch">
                 <input
-                  type="time"
-                  value={time}
-                  disabled={!checked}
-                  onChange={(e) => setTime(e.target.value)}
-                  placeholder="Start Date (optional)"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your Name"
                 />
+                <input
+                  type="text"
+                  value={details}
+                  onChange={(e) => setDetails(e.target.value)}
+                  placeholder="Additional Details (optional)"
+                />
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Location (optional)"
+                />
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="checkbox"
+                      value={checked}
+                      onChange={() => setChecked(!checked)}
+                      className="h-6 w-6 rounded-md"
+                    />
+                    <p>Custom Start Time?</p>
+                  </div>
+                  <input
+                    type="time"
+                    value={time}
+                    disabled={!checked}
+                    onChange={(e) => setTime(e.target.value)}
+                    placeholder="Start Date (optional)"
+                    className="disabled:bg-slate-700 disabled:cursor-not-allowed disabled:text-slate-400"
+                  />
+                </div>
               </div>
             </Section>
-            <div className="flex items-center justify-between gap-4 pt-4">
-              <button
-                className="disabled:cursor-not-allowed flex-2 py-2 px-3 text-white rounded-md bg-slate-500 disabled:bg-slate-600 disabled:text-slate-400 font-bold tracking-wider uppercase"
-                onClick={() => setIsOpen(false)}
-              >
-                Cancel
-              </button>
+            <div className="flex items-center flex-row-reverse justify-start flex-wrap gap-4 pt-4">
               <Button
                 disabled={!block || !name || !start}
                 createUrl={() => {
@@ -90,6 +87,12 @@ const DetailsSection = ({ block, isOpen, setIsOpen }) => {
                   return window.location.href + "?" + searchParams.toString();
                 }}
               />
+              <button
+                className="py-2 px-3 text-slate-100 rounded-md border-2 border-slate-600 hover:bg-slate-600 font-bold tracking-wider uppercase"
+                onClick={() => setIsOpen(false)}
+              >
+                Cancel
+              </button>
             </div>
           </>
         </Dialog.Panel>

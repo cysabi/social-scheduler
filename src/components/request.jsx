@@ -15,7 +15,7 @@ export const Button = ({ createUrl, ...rest }) => {
           setOpen(true);
           setValue(createUrl());
         }}
-        className="disabled:cursor-not-allowed flex-6 py-2 px-3 text-white rounded-md bg-yellow-600 disabled:bg-slate-600 disabled:text-slate-400 font-bold tracking-wider uppercase"
+        className="disabled:cursor-not-allowed py-2 px-3 text-white rounded-md bg-yellow-600 disabled:bg-yellow-600/80 disabled:text-white/80 font-bold tracking-wider uppercase"
         {...rest}
       >
         Create Request
