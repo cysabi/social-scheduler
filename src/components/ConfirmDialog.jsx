@@ -18,7 +18,7 @@ const ConfirmDialog = ({ block, setBlock }) => {
       <div className="fixed inset-0 flex sm:items-center justify-center items-center">
         <Dialog.Panel className="max-w-md w-full rounded-md bg-slate-700 p-6 shadow-xl mx-4 flex flex-col">
           {success[0] === false ? (
-            <Error>{success[1].message}</Error>
+            <Error>{success[1]}</Error>
           ) : (
             <Panel
               block={block}
@@ -82,9 +82,17 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
     if (config.api) {
       fetch(config.api + "?" + searchParams.toString())
         .then((resp) => {
-          if (!resp.ok)
-            return setSuccess([false, "500 -- Internal Server Error"]);
-
+          if (!resp.ok) {
+            return Promise.reject({ message: "500 -- Internal Server Error" });
+          }
+          return resp.json();
+        })
+        .then((data) => {
+          if (data.errors) {
+            return Promise.reject({
+              message: `${data.code} -- ${data.errors[0].message}`,
+            });
+          }
           searchParams.set(
             "text",
             `${details ? details : block.summary}${
@@ -96,20 +104,7 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
             window.location.href + "?" + searchParams.toString(),
           ]);
         })
-        .catch((error) => {
-          searchParams.set(
-            "text",
-            `${details ? details : block.summary}${
-              name && ` w/ ${config.name}`
-            }`
-          );
-          console.log(window.location.href + "?" + searchParams.toString());
-          setSuccess([
-            false,
-            window.location.href + "?" + searchParams.toString(),
-          ]);
-        });
-      // .catch((error) => setSuccess([false, error]));
+        .catch((error) => setSuccess([false, error.message]));
     } else {
       setSuccess([
         "request",
@@ -132,7 +127,7 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
     >
       <div
         className={`flex p-4 gap-4 rounded-lg justify-between ${
-          success[0]
+          success[0] === "booked"
             ? "bg-green-500 text-green-900"
             : "bg-yellow-500 text-yellow-900"
         }`}
@@ -141,7 +136,7 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
           <span className="text-black">{text}</span>
           <div
             className={`text-sm ${
-              success[0] ? "text-green-900" : "text-yellow-900"
+              success[0] === "booked" ? "text-green-900" : "text-yellow-900"
             }`}
           >
             {location && `@ ${location}`}
@@ -156,7 +151,7 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
             }`}
           </div>
         </span>
-        {success[0] ? (
+        {success[0] === "booked" ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -276,7 +271,7 @@ const Booked = ({ url }) => {
       <div className="flex flex-col items-center gap-2 justify-center text-center">
         <div className="text-xl text-green-400 font-bold">Booked!</div>
         <div className="text-lg text-slate-300">
-          An event has been created on {config.name}'s calendar!
+          An event has been booked on {config.name}'s calendar!
           <br />
           You may close this window now.
         </div>
@@ -413,14 +408,14 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
       </div>
       <div className="flex items-center justify-between flex-wrap gap-4">
         <button
-          disabled={!name}
+          disabled={!name || loading}
           className="disabled:cursor-not-allowed py-2 px-3 text-white rounded-md bg-yellow-600 disabled:bg-yellow-600/80 disabled:text-white/80 font-semibold tracking-wider uppercase"
           onClick={() => {
-            setLoading(true);
+            config.api && setLoading("Booking...");
             createEvent();
           }}
         >
-          Create Event
+          {loading ? loading : config.api ? "Book Event" : "Create Request"}
         </button>
         <button
           className="py-2 px-3 text-slate-100 rounded-md border-2 border-slate-600 hover:bg-slate-600 font-semibold tracking-wider uppercase"
