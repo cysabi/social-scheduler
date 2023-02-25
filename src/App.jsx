@@ -40,6 +40,25 @@ const App = () => {
     }
   }, [enabledDates, day]);
 
+  useEffect(() => {
+    const queryParams = window.location.search;
+    if (queryParams.includes("lunch")) {
+      setLunch(true);
+    }
+    if (queryParams.includes("dinner")) {
+      setDinner(true);
+    }
+    if (queryParams.includes("work")) {
+      setWork(true);
+    }
+    if (queryParams.includes("afternoon")) {
+      setAfternoon(true);
+    }
+    if (queryParams.includes("evening")) {
+      setEvening(true);
+    }
+  }, []);
+
   return (
     <Redirect error={cal?.error}>
       <div className="max-w-xl h-screen p-4 mx-auto flex flex-col gap-4 sm:gap-8">
