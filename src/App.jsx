@@ -9,7 +9,7 @@ import {
 } from "date-fns";
 import ical from "ical";
 import { rrulestr } from "rrule";
-import { Redirect } from "./components/request";
+import Redirect from "./components/Redirect";
 import FilterSection, { DayFilter, TopicsFilter } from "./components/filters";
 import BlockSection from "./components/block";
 import ConfirmDialog from "./components/ConfirmDialog";
