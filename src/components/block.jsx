@@ -1,11 +1,11 @@
 import { Fragment } from "react";
-import { format, isSameDay, startOfDay } from "date-fns";
+import { format, eachDayOfInterval } from "date-fns";
 import { RadioGroup } from "@headlessui/react";
 import Section from "./Section";
 
 const BlockSection = ({ value, onChange, blocks, day }) => {
   const filteredBlocks = blocks
-    .filter((block) => day && block.date >= startOfDay(day))
+    .filter((block) => day && block.date >= day)
     .sort((a, b) => a.date - b.date);
 
   return (
@@ -31,12 +31,10 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
             {filteredBlocks.map((block, i) => {
               return (
                 <Fragment key={block.id}>
-                  {(i === 0 ||
-                    !isSameDay(block.date, filteredBlocks[i - 1].date)) && (
-                    <div className="font-medium tracking-wide mt-2 text-slate-400">
-                      {format(block.date, "EEEE, LLL do")}
-                    </div>
-                  )}
+                  <BlockHeadings
+                    prevDate={filteredBlocks?.[i - 1]?.date}
+                    date={block.date}
+                  />
                   <RadioGroup.Option value={block}>
                     {({ checked }) => (
                       <div
@@ -65,6 +63,24 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
       </div>
     </Section>
   );
+};
+
+const BlockHeadings = ({ prevDate, date }) => {
+  const days =
+    prevDate === undefined
+      ? [date]
+      : eachDayOfInterval({ start: prevDate, end: date });
+  return days.map((day) => (
+    <div className="flex items-center gap-4" key={day}>
+      <div className="border-b-2 border-slate-700 border-dotted flex-1" />
+      <div
+        key={day}
+        className="tracking-wide text-right text-sm text-slate-400"
+      >
+        {format(day, "EEEE, LLL do")}
+      </div>
+    </div>
+  ));
 };
 
 export default BlockSection;

@@ -37,7 +37,7 @@ export const DayFilter = ({ value, onChange, dates, disabled }) => (
         >
           {({ checked, disabled }) => (
             <div
-              className={`border-2 border-slate-600 py-1 px-2 rounded-md flex-col text-center ${
+              className={`border-2 border-slate-600 p-2 rounded-md flex-col text-center ${
                 checked
                   ? "border-yellow-500 bg-yellow-400/20"
                   : "border-slate-600 hover:bg-slate-700"
@@ -47,10 +47,10 @@ export const DayFilter = ({ value, onChange, dates, disabled }) => (
                   : "cursor-pointer"
               }`}
             >
-              <p className="w-full text-center font-medium whitespace-nowrap">
+              <p className="w-full text-center font-semibold whitespace-nowrap">
                 {d.altLabel ? d.altLabel : d.weekDay}
               </p>
-              <p className="w-full text-center whitespace-nowrap">
+              <p className="w-full text-center text-slate-300 whitespace-nowrap">
                 {d.month} {d.day}
               </p>
             </div>
@@ -85,9 +85,9 @@ export const TopicsFilter = ({ topics, setTopics }) => {
           <Listbox.Option key={t} value={t}>
             {({ selected }) => (
               <button
-                className={`border-2 border-slate-600 px-2 capitalize text-xs sm:text-base sm:uppercase py-1 rounded-md flex-col text-center hover:cursor-pointer font-medium ${
+                className={`border-2 border-slate-600 px-2 capitalize text-xs sm:text-base sm:uppercase py-1 rounded-full flex-col text-center hover:cursor-pointer font-medium ${
                   selected
-                    ? "border-yellow-500 bg-yellow-400/20"
+                    ? "border-transparent bg-yellow-500 text-black"
                     : "border-slate-600 hover:bg-slate-700"
                 }`}
               >

@@ -5,6 +5,7 @@ import {
   add,
   differenceInMinutes,
   areIntervalsOverlapping,
+  startOfDay,
 } from "date-fns";
 import ical from "ical";
 import { rrulestr } from "rrule";
@@ -167,8 +168,7 @@ const useBlocks = (data, plansData, topics) => {
 
 const useDates = (blocks) => {
   const [dates, enabledDates] = useMemo(() => {
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+    const today = startOfDay(new Date());
     const dates = Array.from({ length: weeks * 7 }, (_, i) => {
       const nextDate = add(today, { days: i });
       return {

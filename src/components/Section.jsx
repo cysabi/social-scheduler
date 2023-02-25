@@ -1,6 +1,6 @@
 const Section = ({ logo, title, children, ...rest }) => (
   <div className="flex flex-col" {...rest}>
-    <div className="flex items-center gap-3">
+    {/* <div className="flex items-center gap-3">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -14,7 +14,7 @@ const Section = ({ logo, title, children, ...rest }) => (
       <h2 className="text-lg uppercase font-semibold tracking-wider text-slate-300">
         {title}
       </h2>
-    </div>
+    </div> */}
     {children}
   </div>
 );
