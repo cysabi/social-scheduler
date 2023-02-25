@@ -22,7 +22,7 @@ const App = () => {
   const [day, setDay] = useState("");
   const [block, setBlock] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [topics, setTopics] = useState(["lunch", "dinner"]);
+  const [topics, setTopics] = useState([]);
 
   const blocks = useBlocks(
     cal?.data,
@@ -42,21 +42,23 @@ const App = () => {
 
   return (
     <Redirect error={cal?.error}>
-      <div className="max-w-xl h-screen p-4 mx-auto flex flex-col gap-4">
-        <h1 className="font-bold text-xl text-center">
+      <div className="max-w-xl h-screen p-4 mx-auto flex flex-col gap-4 sm:gap-8">
+        <h1 className="font-bold text-xl sm:text-2xl text-center">
           {config.name}'s Social Scheduler
         </h1>
+        <div className="border-t-2 border-slate-700" />
         <div className="bg-slate-800 items-center justify-between">
           <FilterSection>
+            <TopicsFilter topics={topics} setTopics={setTopics} />
             <DayFilter
               value={day}
               onChange={setDay}
               dates={dates}
               disabled={(d) => !enabledDates.includes(d)}
             />
-            <TopicsFilter topics={topics} setTopics={setTopics} />
           </FilterSection>
         </div>
+        <div className="border-t-2 border-slate-700" />
         <BlockSection
           day={day}
           value={block}
@@ -64,7 +66,7 @@ const App = () => {
             setBlock(v);
             setIsOpen(true);
           }}
-          blocks={blocks.filter((b) => isSameDay(b.date, day))}
+          blocks={blocks}
         />
       </div>
       <DetailsSection block={block} isOpen={isOpen} setIsOpen={setIsOpen} />
@@ -76,8 +78,8 @@ const useBlocks = (data, plansData, topics) => {
   const now = new Date();
   const then = add(now, { weeks: 8 });
 
-  const dataBlocks = useMemo(() => {
-    if (!data) return [];
+  const blocks = useMemo(() => {
+    if (!data || plansData.includes(undefined)) return [];
 
     const blocks = [];
     Object.values(data)
@@ -105,11 +107,6 @@ const useBlocks = (data, plansData, topics) => {
           });
         }
       });
-    return blocks;
-  }, [data, plansData]);
-
-  const filterPlanBlocks = useMemo(() => {
-    if (plansData.includes(undefined)) return [];
 
     const planBlocks = [];
     plansData
@@ -138,7 +135,7 @@ const useBlocks = (data, plansData, topics) => {
           });
         }
       });
-    return dataBlocks.filter(
+    return blocks.filter(
       (b) =>
         planBlocks.filter((p) =>
           areIntervalsOverlapping(
@@ -147,12 +144,12 @@ const useBlocks = (data, plansData, topics) => {
           )
         ).length === 0
     );
-  }, [dataBlocks, plansData]);
+  }, [data, plansData]);
 
-  const filterTopicBlocks = useMemo(() => {
-    if (!filterPlanBlocks.length) return [];
+  const filteredBlocks = useMemo(() => {
+    if (!blocks.length) return [];
 
-    return filterPlanBlocks.filter((b) => {
+    return blocks.filter((b) => {
       const rules = {
         lunch: () => b.summary?.includes("Lunch"),
         dinner: () => b.summary?.includes("Dinner"),
@@ -162,11 +159,11 @@ const useBlocks = (data, plansData, topics) => {
       };
       return topics.length === 0
         ? true
-        : topics.reduce((p, t) => (p ? p : rules[t]()));
+        : topics.reduce((p, t) => (p ? p : rules[t]()), false);
     });
-  }, [filterPlanBlocks, topics]);
+  }, [blocks, topics]);
 
-  return filterTopicBlocks;
+  return filteredBlocks;
 };
 
 const useDates = (blocks) => {

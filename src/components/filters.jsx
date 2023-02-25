@@ -14,97 +14,75 @@ const FilterSection = ({ children }) => (
         d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"
       />
     }
-    title={
-      <span className="inline-flex flex-wrap items-center">
-        Pick your filters
-      </span>
-    }
+    title={<span className="inline-flex flex-wrap items-center">Filters</span>}
+    className="flex flex-col gap-2 text-sm sm:text-base"
   >
     {children}
   </Section>
 );
 
 export const DayFilter = ({ value, onChange, dates, disabled }) => (
-  <FilterChip
-    name="Starting Day:"
-    value={
-      <>
-        {value ? (
-          <span className="font-semibold text-white">
-            {format(value, "MMM ddd")}
-          </span>
-        ) : (
-          <span className="font-semibold text-slate-400">Loading</span>
-        )}
-      </>
-    }
+  <RadioGroup
+    value={value}
+    onChange={onChange}
+    by={(a, b) => (a && b ? isSameDay(a, b) : undefined)}
   >
-    <RadioGroup
-      value={value}
-      onChange={onChange}
-      by={(a, b) => (a && b ? isSameDay(a, b) : undefined)}
-    >
-      <span className="flex gap-3 overflow-scroll bg-slate-800">
-        {dates.map((d) => (
-          <RadioGroup.Option
-            key={d.date}
-            value={d.date}
-            disabled={disabled(d)}
-            className="flex-1"
-          >
-            {({ checked, disabled }) => (
-              <div
-                className={`border-2 border-slate-600 p-2 rounded-md flex-col text-center ${
-                  checked
-                    ? "border-yellow-500 bg-yellow-400/20"
-                    : "border-slate-600 hover:bg-slate-700"
-                } ${
-                  disabled
-                    ? "border-slate-700 bg-slate-700 cursor-not-allowed text-slate-300"
-                    : "cursor-pointer"
-                }`}
-              >
-                <p className="w-full text-center font-medium whitespace-nowrap">
-                  {d.altLabel ? d.altLabel : d.weekDay}
-                </p>
-                <p className="w-full text-center whitespace-nowrap">
-                  {d.month} {d.day}
-                </p>
-              </div>
-            )}
-          </RadioGroup.Option>
-        ))}
-      </span>
-    </RadioGroup>
-  </FilterChip>
+    <span className="flex gap-2 overflow-scroll bg-slate-800">
+      {dates.map((d) => (
+        <RadioGroup.Option
+          key={d.date}
+          value={d.date}
+          disabled={disabled(d)}
+          className="flex-1"
+        >
+          {({ checked, disabled }) => (
+            <div
+              className={`border-2 border-slate-600 py-1 px-2 rounded-md flex-col text-center ${
+                checked
+                  ? "border-yellow-500 bg-yellow-400/20"
+                  : "border-slate-600 hover:bg-slate-700"
+              } ${
+                disabled
+                  ? "border-slate-700 bg-slate-700 cursor-not-allowed text-slate-300"
+                  : "cursor-pointer"
+              }`}
+            >
+              <p className="w-full text-center font-medium whitespace-nowrap">
+                {d.altLabel ? d.altLabel : d.weekDay}
+              </p>
+              <p className="w-full text-center whitespace-nowrap">
+                {d.month} {d.day}
+              </p>
+            </div>
+          )}
+        </RadioGroup.Option>
+      ))}
+    </span>
+  </RadioGroup>
 );
 
 export const TopicsFilter = ({ topics, setTopics }) => (
   <Listbox value={topics} onChange={setTopics} multiple>
-    <FilterChip
-      name="Topics:"
-      value={
-        <span className="font-semibold text-white">{topics.join(", ")}</span>
-      }
+    <Listbox.Options
+      static
+      className="flex justify-between overflow-x-scroll gap-1"
     >
-      <Listbox.Options static className="flex gap-3 flex-wrap">
-        {allTopics.map((t) => (
-          <Listbox.Option key={t} value={t}>
-            {({ selected }) => (
-              <button
-                className={`border-2 border-slate-600 px-2 py-1 rounded-md flex-col text-center hover:cursor-pointer font-medium ${
-                  selected
-                    ? "border-yellow-500 bg-yellow-400/20"
-                    : "border-slate-600 hover:bg-slate-700"
-                }`}
-              >
-                {t}
-              </button>
-            )}
-          </Listbox.Option>
-        ))}
-      </Listbox.Options>
-    </FilterChip>
+      {allTopics.map((t) => (
+        <Listbox.Option key={t} value={t}>
+          {({ selected }) => (
+            <button
+              className={`border-2 border-slate-600 px-2 capitalize text-xs sm:text-base sm:uppercase py-1 rounded-md flex-col text-center hover:cursor-pointer font-medium ${
+                selected
+                  ? "border-yellow-500 bg-yellow-400/20"
+                  : "border-slate-600 hover:bg-slate-700"
+              }`}
+            >
+              {t}
+            </button>
+          )}
+        </Listbox.Option>
+      ))}
+    </Listbox.Options>
   </Listbox>
 );
 
