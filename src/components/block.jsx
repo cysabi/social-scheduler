@@ -20,7 +20,7 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
       className="flex flex-col flex-1 gap-2 min-h-0"
       title="Pick a block"
     >
-      <div className="overflow-y-scroll after:bg-slate-300">
+      <div className="overflow-y-auto rounded-lg after:bg-slate-300">
         {day ? (
           <RadioGroup
             value={value}
