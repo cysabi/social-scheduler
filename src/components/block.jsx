@@ -20,13 +20,13 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
       className="flex flex-col flex-1 gap-2 min-h-0"
       title="Pick a block"
     >
-      <div className="overflow-y-auto rounded-lg after:bg-slate-300">
+      <div className="overflow-y-auto after:bg-slate-300 px-4">
         {day ? (
           <RadioGroup
             value={value}
             onChange={onChange}
             by={(a, b) => a.id === b.id}
-            className="flex flex-col gap-3"
+            className="flex flex-col gap-3 mt-2"
           >
             {filteredBlocks.map((block, i) => {
               return (

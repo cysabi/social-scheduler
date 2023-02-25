@@ -27,7 +27,7 @@ export const DayFilter = ({ value, onChange, dates, disabled }) => (
     onChange={onChange}
     by={(a, b) => (a && b ? isSameDay(a, b) : undefined)}
   >
-    <span className="flex gap-2 overflow-x-auto rounded-lg bg-slate-800">
+    <span className="flex gap-2 overflow-x-auto rounded-md bg-slate-800 mt-2 pb-4">
       {dates.map((d) => (
         <RadioGroup.Option
           key={d.date}
@@ -79,13 +79,13 @@ export const TopicsFilter = ({ topics, setTopics }) => {
     <Listbox value={topics} onChange={setTopics} multiple>
       <Listbox.Options
         static
-        className="flex justify-between overflow-x-auto rounded-lg gap-1"
+        className="flex justify-between overflow-x-auto rounded-lg gap-0"
       >
         {allTopics.map((t) => (
           <Listbox.Option key={t} value={t}>
             {({ selected }) => (
               <button
-                className={`border-2 border-slate-600 px-2 capitalize text-xs sm:text-base sm:uppercase py-1 rounded-full flex-col text-center hover:cursor-pointer font-medium ${
+                className={`border-2 border-slate-600 px-2 capitalize text-sm sm:text-base sm:uppercase py-0 rounded-full flex-col text-center hover:cursor-pointer ${
                   selected
                     ? "border-transparent bg-yellow-500 text-black"
                     : "border-slate-600 hover:bg-slate-700"
