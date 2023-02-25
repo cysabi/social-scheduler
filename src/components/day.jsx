@@ -4,6 +4,51 @@ import PaginateButton from "./PaginateButton";
 
 const DaySection = ({ value, onChange, dates, disabled }) => (
   <RadioGroup
+    value={value}
+    onChange={onChange}
+    by={(a, b) => (a && b ? isSameDay(a, b) : undefined)}
+  >
+    <span className="flex gap-3 overflow-scroll bg-slate-800">
+      {dates.map((d) => (
+        <RadioGroup.Option
+          key={d.date}
+          value={d.date}
+          disabled={disabled(d)}
+          className="mb-3"
+          style={{
+            gridColumnStart: getDay(d.date),
+          }}
+        >
+          {({ checked, disabled }) => (
+            <div
+              className={`border-2 border-slate-600 p-2 rounded-md flex-col text-center font-medium ${
+                checked
+                  ? "border-yellow-500 bg-yellow-400/20"
+                  : "border-slate-600 hover:bg-slate-700"
+              } ${
+                disabled
+                  ? "border-slate-700 bg-slate-700 cursor-not-allowed text-slate-300"
+                  : "cursor-pointer"
+              }`}
+            >
+              {d.altLabel ? (
+                <p className="mx-auto mb-3 mt-1 w-10  text-sm">{d.altLabel}</p>
+              ) : (
+                <p className="mx-auto mb-3 w-10 h-6 text-lg">{d.weekDay}</p>
+              )}
+              <p className="mx-auto w-14 text-xs">
+                {d.month} {d.day}
+              </p>
+            </div>
+          )}
+        </RadioGroup.Option>
+      ))}
+    </span>
+  </RadioGroup>
+);
+
+const DaySectionV1 = ({ value, onChange, dates, disabled }) => (
+  <RadioGroup
     className="flex flex-wrap sm:grid sm:grid-cols-7 gap-3"
     value={value}
     onChange={onChange}
