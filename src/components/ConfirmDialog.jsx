@@ -5,7 +5,7 @@ import Section from "./Section";
 import { Dialog } from "@headlessui/react";
 import config from "../config";
 
-const DetailsSection = ({ block, setBlock }) => {
+const ConfirmDialog = ({ block, setBlock }) => {
   const [name, setName] = useState("");
   const [details, setDetails] = useState("");
   const [location, setLocation] = useState("");
@@ -245,4 +245,4 @@ const getDate = (date, time) =>
         minutes: time.split(":")[1],
       });
 
-export default DetailsSection;
+export default ConfirmDialog;

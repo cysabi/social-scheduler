@@ -18,7 +18,7 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
         />
       }
       className="flex flex-col flex-1 gap-2 min-h-0"
-      title="Blocks"
+      title="Pick a block"
     >
       <div className="overflow-y-scroll after:bg-slate-300">
         {day ? (

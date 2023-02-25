@@ -12,7 +12,7 @@ import { rrulestr } from "rrule";
 import { Redirect } from "./components/request";
 import FilterSection, { DayFilter, TopicsFilter } from "./components/filters";
 import BlockSection from "./components/block";
-import DetailsSection from "./components/DetailsSection";
+import ConfirmDialog from "./components/ConfirmDialog";
 import config from "./config";
 
 const weeks = 3;
@@ -75,7 +75,7 @@ const App = () => {
           blocks={blocks}
         />
       </div>
-      <DetailsSection block={block} setBlock={setBlock} />
+      <ConfirmDialog block={block} setBlock={setBlock} />
     </Redirect>
   );
 };
