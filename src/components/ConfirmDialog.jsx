@@ -1,4 +1,4 @@
-import { format, formatISO, set } from "date-fns";
+import { format, formatISO, parseISO, set, isBefore, addHours } from "date-fns";
 import { useEffect, useState } from "react";
 import Section from "./Section";
 import { Dialog } from "@headlessui/react";
@@ -77,7 +77,9 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
       title: text,
       location,
       start: formatISO(getDate(block.date, time)),
-      end: formatISO(block.endDate),
+      end: isBefore(getDate(block.date, time), block.endDate)
+        ? formatISO(block.endDate)
+        : formatISO(addHours(getDate(block.date, time), 1)),
     });
     if (config.api) {
       fetch(config.api + "?" + searchParams.toString())
@@ -201,7 +203,7 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
                       ? format(block.date, "HH:mm")
                       : e.target.value
                   ),
-                format(block.date, "HH:mm") === time ? "text-slate-500" : "",
+                format(block.date, "HH:mm") === time,
               ],
             ]}
           />
@@ -296,6 +298,7 @@ const Booked = ({ url }) => {
 
 const Confirm = ({ name, createEvent, onClose, inputs }) => {
   const [loading, setLoading] = useState(false);
+  const [isTime, setIsTime] = useState(false);
   return (
     <>
       <div className="flex flex-col gap-2">
@@ -384,10 +387,19 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
               />
             </svg>
           }
-          type="time"
-          value={inputs[3][0]}
+          type={isTime || !inputs[3][2] ? "time" : "text"}
+          onFocus={(e) => setIsTime(true)}
+          onBlur={(e) => setIsTime(false)}
+          value={
+            isTime || !inputs[3][2] || !inputs[3][0]
+              ? inputs[3][0]
+              : `Around ${format(
+                  parseISO(`2000-01-01T${inputs[3][0]}:00`),
+                  "HH:mm a"
+                )}`
+          }
           onChange={inputs[3][1]}
-          className={inputs[3][2]}
+          className={inputs[3][2] ? "text-slate-500" : undefined}
         />
         {/* <Input
             icon={
