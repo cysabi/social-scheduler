@@ -74,25 +74,22 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
   const createEvent = () => {
     localStorage.setItem("name", name);
     const searchParams = new URLSearchParams({
-      text,
+      title: text,
       location,
-      start: formatISO(getDate(block.date, time), { format: "basic" }),
-      end: formatISO(block.endDate, { format: "basic" }),
+      start: formatISO(getDate(block.date, time)),
+      end: formatISO(block.endDate),
     });
     if (config.api) {
       fetch(config.api + "?" + searchParams.toString())
         .then((resp) => {
           if (!resp.ok) {
-            return Promise.reject({ message: "500 -- Internal Server Error" });
+            return Promise.reject({
+              message: `Service responded with ${resp.status} error`,
+            });
           }
           return resp.json();
         })
         .then((data) => {
-          if (data.errors) {
-            return Promise.reject({
-              message: `${data.code} -- ${data.errors[0].message}`,
-            });
-          }
           searchParams.set(
             "text",
             `${details ? details : block.summary}${
