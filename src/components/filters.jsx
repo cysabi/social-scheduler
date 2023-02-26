@@ -72,6 +72,7 @@ export const TopicsFilter = ({ topics, setTopics }) => {
           .split(",")
           .filter((t) => allTopics.includes(t)),
       ]);
+      window.history.replaceState(null, null, window.location.pathname);
     }
   }, []);
 
