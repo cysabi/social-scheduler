@@ -45,7 +45,9 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
                         }`}
                       >
                         <p className="text-lg">{block.summary}</p>
-                        <p>~ {format(block.date, "haaa")}</p>
+                        <p className="text-slate-400">
+                          ~ {format(block.date, "BBBB").split(" ").pop()}
+                        </p>
                       </div>
                     )}
                   </RadioGroup.Option>
@@ -56,7 +58,7 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
         ) : (
           <div className="rounded-lg flex items-center bg-slate-700 justify-between flex-wrap font-medium p-4">
             <p className="w-full text-center text-slate-400">
-              Loading Blocks...
+              Loading calendar...
             </p>
           </div>
         )}

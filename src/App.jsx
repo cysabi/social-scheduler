@@ -10,7 +10,11 @@ import {
 import ical from "ical";
 import { rrulestr } from "rrule";
 import Redirect from "./components/Redirect";
-import FilterSection, { DayFilter, TopicsFilter } from "./components/filters";
+import FilterSection, {
+  DayFilter,
+  TopicsFilter,
+  ALL_TOPICS,
+} from "./components/filters";
 import BlockSection from "./components/block";
 import ConfirmDialog from "./components/ConfirmDialog";
 import config from "./config";
@@ -48,6 +52,10 @@ const App = () => {
       setDay(enabledDates[0].date);
     }
   }, [enabledDates, day]);
+
+  useEffect(() => {
+    setTopics(ALL_TOPICS.filter((t) => window.location.search.includes(t)));
+  }, []);
 
   return (
     <Redirect error={cal?.error}>

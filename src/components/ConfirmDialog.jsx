@@ -220,14 +220,14 @@ const CopyUrl = ({ url }) => {
         <div className="text-lg tracking-wide font-semibold uppercase">
           Event Request
         </div>
-        <div className="text-lg text-slate-300">
+        <div className="text-slate-300">
           Copy this url, and send it to {config.name} however you like.
         </div>
       </div>
-      <div className="flex">
+      <div className="flex mt-4">
         <input
           type="text"
-          value={url}
+          value={url || "Loading..."}
           readOnly
           className="rounded-r-none text-sm font-mono w-full border-r-0 !border-slate-600"
         />
@@ -248,7 +248,7 @@ const CopyUrl = ({ url }) => {
           </svg>
         </div>
       </div>
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center mt-4">
         <button
           onClick={() =>
             navigator.clipboard.writeText(url).then(() => setCopied(true))
