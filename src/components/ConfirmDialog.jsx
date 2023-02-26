@@ -322,6 +322,7 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
           value={inputs[0][0]}
           onChange={inputs[0][1]}
           placeholder="Your Name"
+          autoFocus
         />
         <Input
           icon={
@@ -389,7 +390,6 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
           }
           type={isTime || !inputs[3][2] ? "time" : "text"}
           onFocus={(e) => setIsTime(true)}
-          onBlur={(e) => setIsTime(false)}
           value={
             isTime || !inputs[3][2] || !inputs[3][0]
               ? inputs[3][0]
