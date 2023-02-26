@@ -51,13 +51,13 @@ const App = () => {
 
   return (
     <Redirect error={cal?.error}>
-      <div className="h-screen flex flex-col">
+      <div className="h-screen flex flex-col sm:gap-4">
         <div className="bg-slate-700 w-full py-3">
           <h1 className="font-semibold text-xl sm:text-2xl text-center">
             Schedule with {config.name}
           </h1>
         </div>
-        <div className="max-w-xl mx-auto w-full min-h-0 flex flex-col">
+        <div className="max-w-xl mx-auto w-full min-h-0 flex flex-col sm:gap-4">
           <div className="bg-slate-800 items-center justify-between px-4 pt-4">
             <FilterSection>
               <TopicsFilter topics={topics} setTopics={setTopics} />
@@ -69,7 +69,7 @@ const App = () => {
               />
             </FilterSection>
           </div>
-          <div className="sm:m-4 border-t-4 border-slate-700" />
+          <div className="sm:mx-4 border-t-4 border-slate-700" />
           <BlockSection
             day={day}
             value={block}
