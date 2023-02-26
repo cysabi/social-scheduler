@@ -122,7 +122,7 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
         />
       }
       title="Confirm Event"
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-4"
     >
       <div
         className={`flex p-4 gap-4 rounded-lg justify-between transition-all duration-500 ${
@@ -301,7 +301,7 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
   const [isTime, setIsTime] = useState(false);
   return (
     <>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <Input
           icon={
             <svg
