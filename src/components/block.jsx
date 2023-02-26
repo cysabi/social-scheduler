@@ -56,7 +56,7 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
             })}
           </RadioGroup>
         ) : (
-          <div className="rounded-lg flex items-center bg-slate-700 justify-between flex-wrap font-medium p-4">
+          <div className="rounded-lg flex items-center bg-slate-700 justify-between flex-wrap font-medium p-4 mt-8">
             <p className="w-full text-center text-slate-400">
               Loading calendar...
             </p>
