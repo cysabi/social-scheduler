@@ -91,10 +91,24 @@ const App = () => {
   );
 };
 
+function convertDateToUTC(date) {
+  return new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    date.getUTCHours(),
+    date.getUTCMinutes(),
+    date.getUTCSeconds()
+  );
+}
+
 const useBlocks = (data, plansData, topics) => {
   const blocks = useMemo(() => {
     if (!data || plansData.includes(undefined)) return [];
 
+    const yesterday = add(new Date(), {
+      days: -1,
+    });
     const now = new Date();
     const then = add(now, { weeks });
     const blocks = [];
@@ -103,16 +117,28 @@ const useBlocks = (data, plansData, topics) => {
       .forEach((event) => {
         if (event.rrule) {
           rrulestr(event.rrule.toString())
-            .between(now, then)
+            .between(yesterday, then) // generates starting yesterday due to timezone bug
             .forEach((occurrence) => {
-              blocks.push({
-                ...event,
-                date: occurrence,
-                endDate: add(occurrence, {
-                  minutes: differenceInMinutes(event.end, event.start),
-                }),
-                id: event.uid + occurrence.toString(),
+              // RRule has a bug with timezones and starts occurrences based on UTC time rather than local timezone
+              // This pushes the occurrence by 1 day if the timezone offset causes the event to appear on the incorrect day
+              const possiblyNextDay = add(occurrence, {
+                minutes: occurrence.getTimezoneOffset(),
               });
+              const adjustedDate =
+                possiblyNextDay.getDate() !== occurrence.getDate()
+                  ? add(occurrence, {
+                      days: possiblyNextDay > occurrence ? 1 : -1,
+                    })
+                  : occurrence;
+              if (adjustedDate > now)
+                blocks.push({
+                  ...event,
+                  date: adjustedDate,
+                  endDate: add(adjustedDate, {
+                    minutes: differenceInMinutes(event.end, event.start),
+                  }),
+                  id: event.uid + adjustedDate.toString(),
+                });
             });
         } else if (then > event.start && event.start > now) {
           blocks.push({
@@ -123,6 +149,8 @@ const useBlocks = (data, plansData, topics) => {
           });
         }
       });
+
+    return blocks;
 
     const planBlocks = [];
     plansData
