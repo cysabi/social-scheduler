@@ -189,9 +189,6 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
                     ? format(block.date, "HH:mm")
                     : e.target.value
                 ),
-              format(block.date, "HH:mm") === time
-                ? "text-slate-500 relative"
-                : "",
               block.date,
             ],
           ]}
@@ -299,11 +296,11 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
           value={inputs[3][0]}
           onChange={inputs[3][1]}
           className={
-            inputs[3][2]
+            format(inputs[3][2], "HH:mm") === inputs[3][0]
               ? `text-slate-500 relative after:absolute focus-within:after:hidden after:inset-0 after:bg-slate-700 after:pointer-events-none after:my-2.5 after:ml-12 after:mr-3 after:content-[attr(data-content)]`
               : undefined
           }
-          content={format(inputs[3][3], "BBBB").split(" ").pop()}
+          content={format(inputs[3][2], "BBBB").split(" ").pop()}
         />
         {/* <Input
             icon={
