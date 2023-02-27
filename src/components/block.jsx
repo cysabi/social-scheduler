@@ -24,20 +24,33 @@ const BlockSection = ({ value, onChange, blocks, day, scrolls }) => {
                     scrolls={scrolls}
                   />
                   <RadioGroup.Option value={block}>
-                    {({ checked }) => (
-                      <div
-                        className={`border-2 rounded-lg flex items-center justify-between flex-wrap font-medium cursor-pointer px-3 py-2.5 ${
-                          checked
-                            ? "border-yellow-500 bg-yellow-400/20"
-                            : "border-slate-600 hover:bg-slate-700"
-                        }`}
-                      >
-                        <p className="text-lg">{block.summary}</p>
-                        <p className="text-slate-200 font-normal">
-                          {format(block.date, "BBBB").split(" ").pop()}
-                        </p>
-                      </div>
-                    )}
+                    {({ checked }) => {
+                      const time = format(block.date, "BBBB").split(" ").pop();
+                      return (
+                        <div
+                          className={`border-2 rounded-lg flex items-center justify-between flex-wrap font-medium cursor-pointer px-3 py-2.5 ${
+                            checked
+                              ? "border-yellow-500 bg-yellow-400/20"
+                              : "border-slate-600 hover:bg-slate-700"
+                          }`}
+                        >
+                          <p className="text-lg">{block.summary}</p>
+                          <p
+                            className={`font-normal text-slate-200 ${
+                              {
+                                morning: "!text-lime-100",
+                                noon: "!text-cyan-100",
+                                afternoon: "!text-sky-100",
+                                evening: "!text-rose-100",
+                                night: "!text-indigo-100",
+                              }[time]
+                            }`}
+                          >
+                            {time}
+                          </p>
+                        </div>
+                      );
+                    }}
                   </RadioGroup.Option>
                 </Fragment>
               );

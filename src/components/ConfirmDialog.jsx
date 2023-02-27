@@ -1,7 +1,8 @@
-import { format, formatISO, parseISO, set, isBefore, addHours } from "date-fns";
+import { format, formatISO, set, isBefore, addHours } from "date-fns";
 import { useEffect, useState } from "react";
 import { Dialog } from "@headlessui/react";
 import config from "../config";
+import { motion } from "framer-motion";
 
 const ConfirmDialog = ({ block, setBlock }) => {
   const [success, setSuccess] = useState([null, null]);
@@ -15,7 +16,11 @@ const ConfirmDialog = ({ block, setBlock }) => {
     <Dialog open={!!block} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
       <div className="fixed inset-0 flex sm:items-center justify-center items-center">
-        <Dialog.Panel className="max-w-md w-full rounded-md bg-slate-700 p-6 shadow-xl mx-4 flex flex-col">
+        <Dialog.Panel
+          className="max-w-md w-full rounded-md bg-slate-700 p-6 shadow-xl mx-4 flex flex-col gap-6 items-stretch justify-between"
+          as={motion.div}
+          layout="position"
+        >
           {success[0] === false ? (
             <Error>{success[1]}</Error>
           ) : (
@@ -112,16 +117,16 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <>
       <div
-        className={`flex p-4 gap-4 rounded-lg justify-between transition-all duration-500 ${
+        className={`flex p-4 gap-4 rounded-lg justify-between ${
           success[0] === "booked"
             ? "bg-green-500 text-green-900"
             : "bg-yellow-500 text-yellow-900"
         }`}
       >
         <span className="font-semibold">
-          <span className="text-black">{text}</span>
+          <span className="text-black">{title}</span>
           <div
             className={`text-sm ${
               success[0] === "booked" ? "text-green-900" : "text-yellow-900"
@@ -139,148 +144,60 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
             }`}
           </div>
         </span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className="w-8 h-8 shrink-0 m-1"
-        >
-          <path
-            fillRule="evenodd"
-            d={
-              success[0] === "booked"
-                ? "M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
-                : "M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
-            }
-            clipRule="evenodd"
-          />
-        </svg>
-      </div>
-      <div>
-        <div
-          className={`transition-[max-height] duration-400 overflow-hidden ease-in ${
-            success[0] === "booked" ? "max-h-80" : "max-h-0"
-          }`}
-        >
-          <Booked url={success[1]} />
-        </div>
-        <div
-          className={`transition-[max-height] duration-400 overflow-hidden ease-in ${
-            success[0] === "request" ? "max-h-80" : "max-h-0"
-          }`}
-        >
-          <CopyUrl url={success[1]} />
-        </div>
-        <div
-          className={`transition-[max-height] duration-500 overflow-hidden ease-out ${
-            success[0] === null ? "max-h-80" : "max-h-0"
-          }`}
-        >
-          <Confirm
-            name={name}
-            createEvent={createEvent}
-            onClose={onClose}
-            inputs={[
-              [name, (e) => setName(e.target.value)],
-              [details, (e) => setDetails(e.target.value)],
-              [location, (e) => setLocation(e.target.value)],
-              [
-                time,
-                (e) =>
-                  setTime(
-                    e.target.value === ""
-                      ? format(block.date, "HH:mm")
-                      : e.target.value
-                  ),
-                format(block.date, "HH:mm") === time,
-              ],
-            ]}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const CopyUrl = ({ url }) => {
-  let [copied, setCopied] = useState(false);
-
-  return (
-    <>
-      <div className="flex flex-col items-center gap-2 justify-center text-center">
-        <div className="text-lg tracking-wide font-semibold uppercase">
-          Event Request
-        </div>
-        <div className="text-slate-300">
-          Copy this url, and send it to {config.name} however you like.
-        </div>
-      </div>
-      <div className="flex mt-4">
-        <input
-          type="text"
-          value={url || "Loading..."}
-          readOnly
-          className="rounded-r-none text-sm font-mono w-full border-r-0 !border-slate-600"
-        />
-        <div className="p-2 rounded-md rounded-l-none bg-slate-600 text-slate-300">
+        {success[0] === "booked" ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
             viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6 shrink-0"
+            fill="currentColor"
+            className="w-8 h-8 shrink-0"
           >
             <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"
+              fillRule="evenodd"
+              d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
+              clipRule="evenodd"
             />
           </svg>
-        </div>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-8 h-8 shrink-0"
+          >
+            <path
+              fillRule="evenodd"
+              d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
+              clipRule="evenodd"
+            />
+          </svg>
+        )}
       </div>
-      <div className="flex flex-col items-center mt-4">
-        <button
-          onClick={() =>
-            navigator.clipboard.writeText(url).then(() => setCopied(true))
-          }
-          className={`p-2 px-3 w-full text-center rounded-md font-semibold tracking-wider uppercase gap-2 ${
-            copied ? "bg-green-500/30" : "bg-yellow-600"
-          }`}
-          disabled={copied}
-        >
-          {copied ? (
-            <div className="text-green-200">Text Copied!</div>
-          ) : (
-            "Copy Text"
-          )}
-        </button>
-      </div>
-    </>
-  );
-};
-
-const Booked = ({ url }) => {
-  return (
-    <>
-      <div className="flex flex-col items-center gap-2 justify-center text-center">
-        <div className="text-xl text-green-400 font-bold">Booking Complete</div>
-        <div className="text-slate-300">
-          This event has been booked on
-          <br />
-          {config.name}'s calendar.
-          <br />
-          You may close this window now.
-        </div>
-      </div>
-      <div className="flex items-center justify-between flex-wrap mt-4">
-        <a
-          className="py-2 px-3 text-center text-slate-100 w-full rounded-md border-2 border-slate-600 hover:bg-slate-600 font-semibold tracking-wider uppercase"
-          href={url}
-        >
-          Add to your Calendar
-        </a>
-      </div>
+      {success[0] === null && (
+        <Confirm
+          name={name}
+          createEvent={createEvent}
+          onClose={onClose}
+          inputs={[
+            [name, (e) => setName(e.target.value)],
+            [details, (e) => setDetails(e.target.value)],
+            [location, (e) => setLocation(e.target.value)],
+            [
+              time,
+              (e) =>
+                setTime(
+                  e.target.value === ""
+                    ? format(block.date, "HH:mm")
+                    : e.target.value
+                ),
+              format(block.date, "HH:mm") === time
+                ? "text-slate-500 relative"
+                : "",
+            ],
+          ]}
+        />
+      )}
+      {success[0] === "booked" && <Booked url={success[1]} />}
+      {success[0] === "request" && <CopyUrl url={success[1]} />}
     </>
   );
 };
@@ -377,18 +294,10 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
               />
             </svg>
           }
-          type={isTime || !inputs[3][2] ? "time" : "text"}
-          onFocus={(e) => setIsTime(true)}
-          value={
-            isTime || !inputs[3][2] || !inputs[3][0]
-              ? inputs[3][0]
-              : `Around ${format(
-                  parseISO(`2000-01-01T${inputs[3][0]}:00`),
-                  "hh:mm a"
-                )}`
-          }
+          type="time"
+          value={inputs[3][0]}
           onChange={inputs[3][1]}
-          className={inputs[3][2] ? "text-slate-500" : undefined}
+          className={inputs[3][2]}
         />
         {/* <Input
             icon={
@@ -413,7 +322,7 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
             placeholder="Email invite (optional)"
           /> */}
       </div>
-      <div className="flex items-center justify-between flex-wrap mt-4">
+      <div className="flex items-center justify-between flex-wrap">
         <button
           className="py-2 px-3 text-slate-100 rounded-md border-2 border-slate-600 hover:bg-slate-600 font-semibold tracking-wider uppercase"
           onClick={onClose}
@@ -429,6 +338,89 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
           }}
         >
           {loading ? loading : config.api ? "Book Event" : "Create Request"}
+        </button>
+      </div>
+    </>
+  );
+};
+
+const Booked = ({ url }) => {
+  return (
+    <>
+      <div className="flex flex-col items-center gap-2 justify-center text-center">
+        <div className="text-xl text-green-400 font-bold">Booking Complete</div>
+        <div className="text-slate-300">
+          This event has been booked on
+          <br />
+          {config.name}'s calendar.
+          <br />
+          You may close this window now.
+        </div>
+      </div>
+      <div className="flex items-center justify-between flex-wrap">
+        <a
+          className="py-2 px-3 text-center text-slate-100 w-full rounded-md border-2 border-slate-600 hover:bg-slate-600 font-semibold tracking-wider uppercase"
+          href={url}
+        >
+          Add to your Calendar
+        </a>
+      </div>
+    </>
+  );
+};
+
+const CopyUrl = ({ url }) => {
+  let [copied, setCopied] = useState(false);
+
+  return (
+    <>
+      <div className="flex flex-col items-center gap-2 justify-center text-center">
+        <div className="text-lg tracking-wide font-semibold uppercase">
+          Event Request
+        </div>
+        <div className="text-slate-300">
+          Copy this url, and send it to {config.name} however you like.
+        </div>
+      </div>
+      <div className="flex">
+        <input
+          type="text"
+          value={url || "Loading..."}
+          readOnly
+          className="rounded-r-none text-sm font-mono w-full border-r-0 !border-slate-600"
+        />
+        <div className="p-2 rounded-md rounded-l-none bg-slate-600 text-slate-300">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6 shrink-0"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"
+            />
+          </svg>
+        </div>
+      </div>
+      <div className="flex flex-col items-center">
+        <button
+          onClick={() =>
+            navigator.clipboard.writeText(url).then(() => setCopied(true))
+          }
+          className={`p-2 px-3 w-full text-center rounded-md font-semibold tracking-wider uppercase gap-2 ${
+            copied ? "bg-green-500/30" : "bg-yellow-600"
+          }`}
+          disabled={copied}
+        >
+          {copied ? (
+            <div className="text-green-200">Text Copied!</div>
+          ) : (
+            "Copy Text"
+          )}
         </button>
       </div>
     </>
