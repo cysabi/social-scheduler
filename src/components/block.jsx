@@ -108,7 +108,7 @@ const TimeOfDayIcon = ({ date }) => {
       <svg
         stroke="currentColor"
         fill="currentColor"
-        stroke-width="0"
+        strokeWidth="0"
         viewBox="0 0 16 16"
         className="w-6 h-6"
         xmlns="http://www.w3.org/2000/svg"
@@ -121,7 +121,7 @@ const TimeOfDayIcon = ({ date }) => {
       <svg
         stroke="currentColor"
         fill="currentColor"
-        stroke-width="0"
+        strokeWidth="0"
         viewBox="0 0 16 16"
         className="h-5 w-5"
         xmlns="http://www.w3.org/2000/svg"

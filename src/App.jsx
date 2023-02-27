@@ -6,6 +6,7 @@ import {
   differenceInMinutes,
   areIntervalsOverlapping,
   startOfDay,
+  sub,
 } from "date-fns";
 import ical from "ical";
 import { rrulestr } from "rrule";
@@ -106,10 +107,10 @@ const useBlocks = (data, plansData, topics) => {
   const blocks = useMemo(() => {
     if (!data || plansData.includes(undefined)) return [];
 
-    const yesterday = add(new Date(), {
-      days: -1,
-    });
     const now = new Date();
+    const yesterday = sub(new Date(), {
+      minutes: now.getTimezoneOffset(),
+    });
     const then = add(now, { weeks });
     const blocks = [];
     Object.values(data)
@@ -149,8 +150,6 @@ const useBlocks = (data, plansData, topics) => {
           });
         }
       });
-
-    return blocks;
 
     const planBlocks = [];
     plansData
