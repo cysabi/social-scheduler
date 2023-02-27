@@ -45,8 +45,8 @@ const BlockSection = ({ value, onChange, blocks, day }) => {
                         }`}
                       >
                         <p className="text-lg">{block.summary}</p>
-                        <p className="text-slate-400">
-                          <TimeOfDayIcon date={block.date} />
+                        <p className="text-slate-200 font-normal">
+                          {format(block.date, "BBBB").split(" ").pop()}
                         </p>
                       </div>
                     )}

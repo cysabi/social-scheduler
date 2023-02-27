@@ -3,7 +3,7 @@ import { isSameDay } from "date-fns";
 import { RadioGroup, Listbox } from "@headlessui/react";
 import Section from "./Section";
 
-export const ALL_TOPICS = ["lunch", "dinner", "work", "afternoon", "evening"];
+const ALL_TOPICS = ["lunch", "dinner", "work", "afternoon", "evening"];
 
 const FilterSection = ({ children }) => (
   <Section
@@ -63,17 +63,7 @@ export const DayFilter = ({ value, onChange, dates, disabled }) => (
 
 export const TopicsFilter = ({ topics, setTopics }) => {
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.has("topics")) {
-      setTopics([
-        ...topics,
-        ...params
-          .get("topics")
-          .split(",")
-          .filter((t) => ALL_TOPICS.includes(t)),
-      ]);
-      window.history.replaceState(null, null, window.location.pathname);
-    }
+    setTopics(ALL_TOPICS.filter((t) => window.location.search.includes(t)));
   }, []);
 
   return (
