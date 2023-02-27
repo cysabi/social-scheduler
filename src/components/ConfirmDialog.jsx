@@ -192,6 +192,7 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
               format(block.date, "HH:mm") === time
                 ? "text-slate-500 relative"
                 : "",
+              block.date,
             ],
           ]}
         />
@@ -204,7 +205,7 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
 
 const Confirm = ({ name, createEvent, onClose, inputs }) => {
   const [loading, setLoading] = useState(false);
-  const [isTime, setIsTime] = useState(false);
+
   return (
     <>
       <div className="flex flex-col gap-1">
@@ -297,7 +298,12 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
           type="time"
           value={inputs[3][0]}
           onChange={inputs[3][1]}
-          className={inputs[3][2]}
+          className={
+            inputs[3][2]
+              ? `text-slate-500 relative after:absolute focus-within:after:hidden after:inset-0 after:bg-slate-700 after:pointer-events-none after:my-2.5 after:ml-12 after:mr-3 after:content-[attr(data-content)]`
+              : undefined
+          }
+          content={format(inputs[3][3], "BBBB").split(" ").pop()}
         />
         {/* <Input
             icon={
@@ -427,8 +433,11 @@ const CopyUrl = ({ url }) => {
   );
 };
 
-const Input = ({ icon, className, ...rest }) => (
-  <div className={`flex items-center flex-row-reverse ${className}`}>
+const Input = ({ icon, className, content, ...rest }) => (
+  <div
+    className={`flex items-center flex-row-reverse ${className}`}
+    data-content={content}
+  >
     <input
       type="text"
       className="w-full rounded-l-none border-l-0 peer"
