@@ -226,7 +226,7 @@ const useCalendar = (url) => {
   return cal;
 };
 
-// rrule has a bug with timezones where the "day" specifically is not accounted for in the timezone.
+// rrule has a bug with timezones where the timezone offset for the "date" specifically is subtracted twice -- https://github.com/jakubroztocil/rrule/issues/537
 const adjustDate = (date, method) => {
   const artificialOffset = method(date, {
     minutes: date.getTimezoneOffset(),
