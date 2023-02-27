@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   format,
   isSameDay,
@@ -34,6 +34,8 @@ const App = () => {
   const [block, setBlock] = useState("");
   const [topics, setTopics] = useState([]);
 
+  const scrolls = useRef(new Map());
+
   const blocks = useBlocks(
     cal?.data,
     plans?.map((p) => p?.data),
@@ -64,7 +66,12 @@ const App = () => {
               <TopicsFilter topics={topics} setTopics={setTopics} />
               <DayFilter
                 value={day}
-                onChange={setDay}
+                onChange={(e) => {
+                  setDay(e);
+                  scrolls.current.get(format(e, "L-d")).scrollIntoView({
+                    behavior: "smooth",
+                  });
+                }}
                 dates={dates}
                 disabled={(d) => !enabledDates.includes(d)}
               />
@@ -76,6 +83,7 @@ const App = () => {
             value={block}
             onChange={setBlock}
             blocks={blocks}
+            scrolls={scrolls}
           />
         </div>
       </div>
@@ -83,17 +91,6 @@ const App = () => {
     </Redirect>
   );
 };
-
-function convertDateToUTC(date) {
-  return new Date(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate(),
-    date.getUTCHours(),
-    date.getUTCMinutes(),
-    date.getUTCSeconds()
-  );
-}
 
 const useBlocks = (data, plansData, topics) => {
   const blocks = useMemo(() => {
@@ -203,15 +200,12 @@ const useDates = (blocks) => {
       const nextDate = add(today, { days: i });
       return {
         date: nextDate,
-        month: format(nextDate, "LLL"),
-        day: format(nextDate, "d"),
-        weekDay: format(nextDate, "EEE"),
-        altLabel:
+        label:
           nextDate.getTime() === today.getTime()
             ? "Today"
             : nextDate.getTime() === today.getTime() + 60 * 60 * 24000
             ? "Tmrw"
-            : undefined,
+            : format(nextDate, "EEE"),
       };
     });
     const enabledDates = dates.filter(

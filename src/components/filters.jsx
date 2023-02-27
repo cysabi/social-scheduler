@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { isSameDay } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { RadioGroup, Listbox } from "@headlessui/react";
 import Section from "./Section";
 
@@ -48,10 +48,10 @@ export const DayFilter = ({ value, onChange, dates, disabled }) => (
               }`}
             >
               <p className="w-full text-center font-semibold whitespace-nowrap">
-                {d.altLabel ? d.altLabel : d.weekDay}
+                {d.label}
               </p>
               <p className="w-full text-center text-slate-300 whitespace-nowrap">
-                {d.month} {d.day}
+                {format(d.date, "LLL d")}
               </p>
             </div>
           )}
