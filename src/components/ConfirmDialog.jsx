@@ -68,12 +68,12 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
     if (block.date) setTime(format(block.date, "HH:mm"));
   }, [block]);
 
-  const text = `${details ? details : block.summary}${name && ` w/ ${name}`}`;
+  const title = `${details ? details : block.summary}${name && ` w/ ${name}`}`;
 
   const createEvent = () => {
     localStorage.setItem("name", name);
     const searchParams = new URLSearchParams({
-      title: text,
+      title,
       location,
       start: formatISO(getDate(block.date, time)),
       end: isBefore(getDate(block.date, time), block.endDate)
@@ -92,7 +92,7 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
         })
         .then(() => {
           searchParams.set(
-            "text",
+            "title",
             `${details ? details : block.summary}${
               name && ` w/ ${config.name}`
             }`

@@ -4,10 +4,10 @@ const Redirect = ({ error, children }) => {
   const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
   });
-  if (params.text) {
+  if (params.title) {
     try {
       let url = "https://www.google.com/calendar/render?action=TEMPLATE";
-      url += "&text=" + params.text;
+      url += "&text=" + params.title;
       url += "&location=" + params.location;
       url += "&dates=" + params.start + "/" + params.end;
       window.location.href = url;
