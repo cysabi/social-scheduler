@@ -1,4 +1,4 @@
-import { format, formatISO, set } from "date-fns";
+import { format, formatISO, parseISO, set, isBefore, addHours } from "date-fns";
 import { useEffect, useState } from "react";
 import Section from "./Section";
 import { Dialog } from "@headlessui/react";
@@ -74,25 +74,24 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
   const createEvent = () => {
     localStorage.setItem("name", name);
     const searchParams = new URLSearchParams({
-      text,
+      title: text,
       location,
-      start: formatISO(getDate(block.date, time), { format: "basic" }),
-      end: formatISO(block.endDate, { format: "basic" }),
+      start: formatISO(getDate(block.date, time)),
+      end: isBefore(getDate(block.date, time), block.endDate)
+        ? formatISO(block.endDate)
+        : formatISO(addHours(getDate(block.date, time), 1)),
     });
     if (config.api) {
       fetch(config.api + "?" + searchParams.toString())
         .then((resp) => {
           if (!resp.ok) {
-            return Promise.reject({ message: "500 -- Internal Server Error" });
+            return Promise.reject({
+              message: `Service responded with ${resp.status} error`,
+            });
           }
           return resp.json();
         })
-        .then((data) => {
-          if (data.errors) {
-            return Promise.reject({
-              message: `${data.code} -- ${data.errors[0].message}`,
-            });
-          }
+        .then(() => {
           searchParams.set(
             "text",
             `${details ? details : block.summary}${
@@ -123,10 +122,10 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
         />
       }
       title="Confirm Event"
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-4"
     >
       <div
-        className={`flex p-4 gap-4 rounded-lg justify-between ${
+        className={`flex p-4 gap-4 rounded-lg justify-between transition-all duration-500 ${
           success[0] === "booked"
             ? "bg-green-500 text-green-900"
             : "bg-yellow-500 text-yellow-900"
@@ -151,58 +150,65 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
             }`}
           </div>
         </span>
-        {success[0] === "booked" ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-8 h-8 shrink-0"
-          >
-            <path
-              fillRule="evenodd"
-              d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
-              clipRule="evenodd"
-            />
-          </svg>
-        ) : (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-8 h-8 shrink-0"
-          >
-            <path
-              fillRule="evenodd"
-              d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
-              clipRule="evenodd"
-            />
-          </svg>
-        )}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="w-8 h-8 shrink-0 m-1"
+        >
+          <path
+            fillRule="evenodd"
+            d={
+              success[0] === "booked"
+                ? "M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
+                : "M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
+            }
+            clipRule="evenodd"
+          />
+        </svg>
       </div>
-      {success[0] === null && (
-        <Confirm
-          name={name}
-          createEvent={createEvent}
-          onClose={onClose}
-          inputs={[
-            [name, (e) => setName(e.target.value)],
-            [details, (e) => setDetails(e.target.value)],
-            [location, (e) => setLocation(e.target.value)],
-            [
-              time,
-              (e) =>
-                setTime(
-                  e.target.value === ""
-                    ? format(block.date, "HH:mm")
-                    : e.target.value
-                ),
-              format(block.date, "HH:mm") === time ? "text-slate-500" : "",
-            ],
-          ]}
-        />
-      )}
-      {success[0] === "booked" && <Booked url={success[1]} />}
-      {success[0] === "request" && <CopyUrl url={success[1]} />}
+      <div>
+        <div
+          className={`transition-[max-height] duration-400 overflow-hidden ease-in ${
+            success[0] === "booked" ? "max-h-80" : "max-h-0"
+          }`}
+        >
+          <Booked url={success[1]} />
+        </div>
+        <div
+          className={`transition-[max-height] duration-400 overflow-hidden ease-in ${
+            success[0] === "request" ? "max-h-80" : "max-h-0"
+          }`}
+        >
+          <CopyUrl url={success[1]} />
+        </div>
+        <div
+          className={`transition-[max-height] duration-500 overflow-hidden ease-out ${
+            success[0] === null ? "max-h-80" : "max-h-0"
+          }`}
+        >
+          <Confirm
+            name={name}
+            createEvent={createEvent}
+            onClose={onClose}
+            inputs={[
+              [name, (e) => setName(e.target.value)],
+              [details, (e) => setDetails(e.target.value)],
+              [location, (e) => setLocation(e.target.value)],
+              [
+                time,
+                (e) =>
+                  setTime(
+                    e.target.value === ""
+                      ? format(block.date, "HH:mm")
+                      : e.target.value
+                  ),
+                format(block.date, "HH:mm") === time,
+              ],
+            ]}
+          />
+        </div>
+      </div>
     </Section>
   );
 };
@@ -216,14 +222,14 @@ const CopyUrl = ({ url }) => {
         <div className="text-lg tracking-wide font-semibold uppercase">
           Event Request
         </div>
-        <div className="text-lg text-slate-300">
+        <div className="text-slate-300">
           Copy this url, and send it to {config.name} however you like.
         </div>
       </div>
-      <div className="flex">
+      <div className="flex mt-4">
         <input
           type="text"
-          value={url}
+          value={url || "Loading..."}
           readOnly
           className="rounded-r-none text-sm font-mono w-full border-r-0 !border-slate-600"
         />
@@ -244,7 +250,7 @@ const CopyUrl = ({ url }) => {
           </svg>
         </div>
       </div>
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center mt-4">
         <button
           onClick={() =>
             navigator.clipboard.writeText(url).then(() => setCopied(true))
@@ -269,14 +275,16 @@ const Booked = ({ url }) => {
   return (
     <>
       <div className="flex flex-col items-center gap-2 justify-center text-center">
-        <div className="text-xl text-green-400 font-bold">Booked!</div>
-        <div className="text-lg text-slate-300">
-          An event has been booked on {config.name}'s calendar!
+        <div className="text-xl text-green-400 font-bold">Booking Complete</div>
+        <div className="text-slate-300">
+          This event has been booked on
+          <br />
+          {config.name}'s calendar.
           <br />
           You may close this window now.
         </div>
       </div>
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-between flex-wrap mt-4">
         <a
           className="py-2 px-3 text-center text-slate-100 w-full rounded-md border-2 border-slate-600 hover:bg-slate-600 font-semibold tracking-wider uppercase"
           href={url}
@@ -290,9 +298,10 @@ const Booked = ({ url }) => {
 
 const Confirm = ({ name, createEvent, onClose, inputs }) => {
   const [loading, setLoading] = useState(false);
+  const [isTime, setIsTime] = useState(false);
   return (
     <>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <Input
           icon={
             <svg
@@ -313,6 +322,7 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
           value={inputs[0][0]}
           onChange={inputs[0][1]}
           placeholder="Your Name"
+          autoFocus
         />
         <Input
           icon={
@@ -378,10 +388,18 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
               />
             </svg>
           }
-          type="time"
-          value={inputs[3][0]}
+          type={isTime || !inputs[3][2] ? "time" : "text"}
+          onFocus={(e) => setIsTime(true)}
+          value={
+            isTime || !inputs[3][2] || !inputs[3][0]
+              ? inputs[3][0]
+              : `Around ${format(
+                  parseISO(`2000-01-01T${inputs[3][0]}:00`),
+                  "hh:mm a"
+                )}`
+          }
           onChange={inputs[3][1]}
-          className={inputs[3][2]}
+          className={inputs[3][2] ? "text-slate-500" : undefined}
         />
         {/* <Input
             icon={
@@ -406,7 +424,13 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
             placeholder="Email invite (optional)"
           /> */}
       </div>
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-between flex-wrap mt-4">
+        <button
+          className="py-2 px-3 text-slate-100 rounded-md border-2 border-slate-600 hover:bg-slate-600 font-semibold tracking-wider uppercase"
+          onClick={onClose}
+        >
+          Cancel
+        </button>
         <button
           disabled={!name || loading}
           className="disabled:cursor-not-allowed py-2 px-3 text-white rounded-md bg-yellow-600 disabled:bg-yellow-600/80 disabled:text-white/80 font-semibold tracking-wider uppercase"
@@ -416,12 +440,6 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
           }}
         >
           {loading ? loading : config.api ? "Book Event" : "Create Request"}
-        </button>
-        <button
-          className="py-2 px-3 text-slate-100 rounded-md border-2 border-slate-600 hover:bg-slate-600 font-semibold tracking-wider uppercase"
-          onClick={onClose}
-        >
-          Cancel
         </button>
       </div>
     </>

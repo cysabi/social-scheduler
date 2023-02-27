@@ -6,6 +6,7 @@ import {
   differenceInMinutes,
   areIntervalsOverlapping,
   startOfDay,
+  sub,
 } from "date-fns";
 import ical from "ical";
 import { rrulestr } from "rrule";
@@ -51,7 +52,7 @@ const App = () => {
 
   return (
     <Redirect error={cal?.error}>
-      <div className="h-screen flex flex-col sm:gap-4">
+      <div className="fixed top-0 right-0 left-0 bottom-0 flex flex-col sm:gap-4 overflow-hidden">
         <div className="bg-slate-700 w-full py-3">
           <h1 className="font-semibold text-xl sm:text-2xl text-center">
             Schedule with {config.name}
@@ -83,11 +84,25 @@ const App = () => {
   );
 };
 
+function convertDateToUTC(date) {
+  return new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    date.getUTCHours(),
+    date.getUTCMinutes(),
+    date.getUTCSeconds()
+  );
+}
+
 const useBlocks = (data, plansData, topics) => {
   const blocks = useMemo(() => {
     if (!data || plansData.includes(undefined)) return [];
 
     const now = new Date();
+    const yesterday = sub(new Date(), {
+      minutes: now.getTimezoneOffset(),
+    });
     const then = add(now, { weeks });
     const blocks = [];
     Object.values(data)
@@ -95,16 +110,28 @@ const useBlocks = (data, plansData, topics) => {
       .forEach((event) => {
         if (event.rrule) {
           rrulestr(event.rrule.toString())
-            .between(now, then)
+            .between(yesterday, then) // generates starting yesterday due to timezone bug
             .forEach((occurrence) => {
-              blocks.push({
-                ...event,
-                date: occurrence,
-                endDate: add(occurrence, {
-                  minutes: differenceInMinutes(event.end, event.start),
-                }),
-                id: event.uid + occurrence.toString(),
+              // RRule has a bug with timezones and starts occurrences based on UTC time rather than local timezone
+              // This pushes the occurrence by 1 day if the timezone offset causes the event to appear on the incorrect day
+              const possiblyNextDay = add(occurrence, {
+                minutes: occurrence.getTimezoneOffset(),
               });
+              const adjustedDate =
+                possiblyNextDay.getDate() !== occurrence.getDate()
+                  ? add(occurrence, {
+                      days: possiblyNextDay > occurrence ? 1 : -1,
+                    })
+                  : occurrence;
+              if (adjustedDate > now)
+                blocks.push({
+                  ...event,
+                  date: adjustedDate,
+                  endDate: add(adjustedDate, {
+                    minutes: differenceInMinutes(event.end, event.start),
+                  }),
+                  id: event.uid + adjustedDate.toString(),
+                });
             });
         } else if (then > event.start && event.start > now) {
           blocks.push({
