@@ -1,23 +1,12 @@
-import { forwardRef, Fragment } from "react";
+import { Fragment } from "react";
 import { format, eachDayOfInterval } from "date-fns";
 import { RadioGroup } from "@headlessui/react";
-import Section from "./Section";
 
 const BlockSection = ({ value, onChange, blocks, day, scrolls }) => {
   const filteredBlocks = blocks.sort((a, b) => a.date - b.date);
 
   return (
-    <Section
-      logo={
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      }
-      className="flex flex-col flex-1 gap-2 min-h-0"
-      title="Pick a block"
-    >
+    <div className="flex flex-col flex-1 gap-2 min-h-0">
       <div className="overflow-y-auto after:bg-slate-300 px-4 pb-4">
         {day ? (
           <RadioGroup
@@ -62,7 +51,7 @@ const BlockSection = ({ value, onChange, blocks, day, scrolls }) => {
           </div>
         )}
       </div>
-    </Section>
+    </div>
   );
 };
 
