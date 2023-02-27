@@ -395,7 +395,7 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
               ? inputs[3][0]
               : `Around ${format(
                   parseISO(`2000-01-01T${inputs[3][0]}:00`),
-                  "HH:mm a"
+                  "hh:mm a"
                 )}`
           }
           onChange={inputs[3][1]}
