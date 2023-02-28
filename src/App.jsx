@@ -17,6 +17,7 @@ import ConfirmDialog from "./components/ConfirmDialog";
 import config from "./config";
 
 const weeks = 3;
+const dayInMs = 86400000;
 
 const rules = {
   lunch: (b) => b.summary?.includes("Lunch"),
@@ -147,6 +148,7 @@ const useBlocks = (data, plansData, topics) => {
     plansData
       .flatMap((p) => Object.values(p))
       .filter((event) => (event.type = "VEVENT"))
+      .filter((event) => event.end - event.start < dayInMs)
       .forEach((event) => {
         if (event.recurrences) {
           Object.entries(event.recurrences).forEach((val) => {
