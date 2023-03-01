@@ -35,19 +35,7 @@ const BlockSection = ({ value, onChange, blocks, day, scrolls }) => {
                           }`}
                         >
                           <p className="text-lg">{block.summary}</p>
-                          <p
-                            className={`font-normal text-slate-200 ${
-                              {
-                                morning: "!text-lime-100",
-                                noon: "!text-cyan-100",
-                                afternoon: "!text-sky-100",
-                                evening: "!text-rose-100",
-                                night: "!text-indigo-100",
-                              }[time]
-                            }`}
-                          >
-                            {time}
-                          </p>
+                          <p className={`font-normal text-slate-200`}>{time}</p>
                         </div>
                       );
                     }}
