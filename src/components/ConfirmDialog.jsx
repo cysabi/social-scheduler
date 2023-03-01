@@ -134,11 +134,13 @@ const Panel = ({ block, onClose, success, setSuccess }) => {
           >
             {location && `@ ${location}`}
             {` ~ ${
-              block.date && format(block.date, "HH:mm") === time
-                ? `${format(getDate(block.date, time), "LLL do ~ h:mm a")
-                    .split("~")
-                    .join("around")}`
-                : `${format(getDate(block.date, time), "LLL do @ h:mm a")}`
+              block.date &&
+              format(
+                getDate(block.date, time),
+                `LLL do ${
+                  format(block.date, "HH:mm") === time ? "BBBB" : "@ h:mm bbb"
+                }`
+              )
             }`}
           </div>
         </span>
@@ -298,7 +300,7 @@ const Confirm = ({ name, createEvent, onClose, inputs }) => {
               ? `text-slate-500 relative after:absolute focus-within:after:hidden after:inset-0 after:bg-slate-700 after:pointer-events-none after:my-2.5 after:ml-12 after:mr-3 after:content-[attr(data-content)]`
               : undefined
           }
-          content={`Around ${format(inputs[3][2], "HH:mm a")} (optional)`}
+          content={`Around ${format(inputs[3][2], "hh:mm a")} (optional)`}
         />
         {/* <Input
             icon={

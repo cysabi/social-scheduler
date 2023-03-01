@@ -8,7 +8,7 @@ const FilterSection = ({ children }) => (
   <div className="flex flex-col gap-2 text-sm sm:text-base">{children}</div>
 );
 
-export const DayFilter = ({ value, onChange, dates, disabled }) => (
+export const DayFilter = ({ value, onChange, dates, disabled, scrolls }) => (
   <RadioGroup
     value={value}
     onChange={onChange}
@@ -21,6 +21,11 @@ export const DayFilter = ({ value, onChange, dates, disabled }) => (
           value={d.date}
           disabled={disabled(d)}
           className="flex-1"
+          ref={(node) =>
+            node
+              ? scrolls.current.set(d.date.toDateString(), node)
+              : scrolls.current.delete(d.date.toDateString())
+          }
         >
           {({ checked, disabled }) => (
             <div

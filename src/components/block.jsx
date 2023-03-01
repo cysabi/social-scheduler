@@ -1,13 +1,43 @@
-import { Fragment } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { format, eachDayOfInterval } from "date-fns";
 import { RadioGroup } from "@headlessui/react";
 
-const BlockSection = ({ value, onChange, blocks, day, scrolls }) => {
+const BlockSection = ({
+  value,
+  onChange,
+  blocks,
+  day,
+  scrolls,
+  scrollToDay,
+}) => {
   const filteredBlocks = blocks.sort((a, b) => a.date - b.date);
+
+  const [scrollTop, setScrollTop] = useState(0);
+
+  const handleScroll = (e) => {
+    const { scrollTop } = e.target;
+    setScrollTop(scrollTop);
+  };
+
+  const debouncedScrollTop = useDebouncedValue(scrollTop);
+
+  useEffect(() => {
+    let closestDate = null;
+    for (const [date, node] of scrolls.current.entries()) {
+      if (node.offsetTop - 260 > debouncedScrollTop) {
+        break;
+      }
+      closestDate = date;
+    }
+    if (closestDate) scrollToDay(new Date(closestDate));
+  }, [debouncedScrollTop]);
 
   return (
     <div className="flex flex-col flex-1 gap-2 min-h-0">
-      <div className="overflow-y-auto after:bg-slate-300 px-4 pb-4">
+      <div
+        className="overflow-y-auto after:bg-slate-300 px-4 pb-4"
+        onScroll={handleScroll}
+      >
         {day ? (
           <RadioGroup
             value={value}
@@ -35,19 +65,7 @@ const BlockSection = ({ value, onChange, blocks, day, scrolls }) => {
                           }`}
                         >
                           <p className="text-lg">{block.summary}</p>
-                          <p
-                            className={`font-normal text-slate-200 ${
-                              {
-                                morning: "!text-lime-100",
-                                noon: "!text-cyan-100",
-                                afternoon: "!text-sky-100",
-                                evening: "!text-rose-100",
-                                night: "!text-indigo-100",
-                              }[time]
-                            }`}
-                          >
-                            {time}
-                          </p>
+                          <p className={`font-normal text-slate-200`}>{time}</p>
                         </div>
                       );
                     }}
@@ -80,8 +98,8 @@ const BlockHeadings = ({ prevDate, date, scrolls }) => {
       key={d}
       ref={(node) =>
         node
-          ? scrolls.current.set(format(d, "L-d"), node)
-          : scrolls.current.delete(format(d, "L-d"))
+          ? scrolls.current.set(d.toDateString(), node)
+          : scrolls.current.delete(d.toDateString())
       }
     >
       <div className="border-b-2 border-slate-700 border-dotted flex-1" />
@@ -90,6 +108,15 @@ const BlockHeadings = ({ prevDate, date, scrolls }) => {
       </div>
     </div>
   ));
+};
+
+const useDebouncedValue = (value, delay = 100) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timeout);
+  }, [value, delay]);
+  return debouncedValue;
 };
 
 export default BlockSection;

@@ -7,8 +7,6 @@ import {
   areIntervalsOverlapping,
   startOfDay,
   sub,
-  set,
-  getDate,
 } from "date-fns";
 import ical from "ical";
 import { rrulestr } from "rrule";
@@ -19,6 +17,7 @@ import ConfirmDialog from "./components/ConfirmDialog";
 import config from "./config";
 
 const weeks = 3;
+const dayInMs = 86400000;
 
 const rules = {
   lunch: (b) => b.summary?.includes("Lunch"),
@@ -36,7 +35,14 @@ const App = () => {
   const [block, setBlock] = useState("");
   const [topics, setTopics] = useState([]);
 
-  const scrolls = useRef(new Map());
+  const eventHeaderScrolls = useRef(new Map());
+  const dayScrolls = useRef(new Map());
+  const scrollToDay = (day) => {
+    if (enabledDates.find((d) => isSameDay(d.date, day))) setDay(day);
+    dayScrolls.current.get(day.toDateString())?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
 
   const blocks = useBlocks(
     cal?.data,
@@ -70,12 +76,15 @@ const App = () => {
                 value={day}
                 onChange={(e) => {
                   setDay(e);
-                  scrolls.current.get(format(e, "L-d")).scrollIntoView({
-                    behavior: "smooth",
-                  });
+                  eventHeaderScrolls.current
+                    .get(e.toDateString())
+                    ?.scrollIntoView({
+                      behavior: "smooth",
+                    });
                 }}
                 dates={dates}
                 disabled={(d) => !enabledDates.includes(d)}
+                scrolls={dayScrolls}
               />
             </FilterSection>
           </div>
@@ -85,7 +94,8 @@ const App = () => {
             value={block}
             onChange={setBlock}
             blocks={blocks}
-            scrolls={scrolls}
+            scrolls={eventHeaderScrolls}
+            scrollToDay={scrollToDay}
           />
         </div>
       </div>
@@ -99,17 +109,30 @@ const useBlocks = (data, plansData, topics) => {
     if (!data || plansData.includes(undefined)) return [];
 
     const now = new Date();
-    const then = add(now, { weeks });
+    const yesterday = sub(new Date(), {
+      minutes: now.getTimezoneOffset(),
+    });
+    const then = add(now, { weeks, days: -1 });
     const blocks = [];
     Object.values(data)
       .filter((event) => event.type === "VEVENT")
       .forEach((event) => {
         if (event.rrule) {
           rrulestr(event.rrule.toString())
-            .between(adjustDate(now, add), adjustDate(then, add))
+            .between(yesterday, then) // generates starting yesterday due to timezone bug
             .forEach((occurrence) => {
-              const adjustedDate = adjustDate(occurrence, sub);
-              if (adjustedDate > now)
+              // RRule has a bug with timezones and starts occurrences based on UTC time rather than local timezone
+              // This pushes the occurrence by 1 day if the timezone offset causes the event to appear on the incorrect day
+              const possiblyNextDay = add(occurrence, {
+                minutes: occurrence.getTimezoneOffset(),
+              });
+              const adjustedDate =
+                possiblyNextDay.getDate() !== occurrence.getDate()
+                  ? add(occurrence, {
+                      days: possiblyNextDay > occurrence ? 1 : -1,
+                    })
+                  : occurrence;
+              if (adjustedDate > now && adjustedDate < then)
                 blocks.push({
                   ...event,
                   date: adjustedDate,
@@ -133,6 +156,7 @@ const useBlocks = (data, plansData, topics) => {
     plansData
       .flatMap((p) => Object.values(p))
       .filter((event) => (event.type = "VEVENT"))
+      .filter((event) => event.end - event.start < dayInMs)
       .forEach((event) => {
         if (event.recurrences) {
           Object.entries(event.recurrences).forEach((val) => {
@@ -224,16 +248,6 @@ const useCalendar = (url) => {
   }, [url]);
 
   return cal;
-};
-
-// rrule has a bug with timezones where the timezone offset for the "date" specifically is subtracted twice -- https://github.com/jakubroztocil/rrule/issues/537
-const adjustDate = (date, method) => {
-  const artificialOffset = method(date, {
-    minutes: date.getTimezoneOffset(),
-  });
-  return set(date, {
-    date: getDate(artificialOffset),
-  });
 };
 
 export default App;
