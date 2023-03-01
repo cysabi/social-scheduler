@@ -38,7 +38,6 @@ const App = () => {
   const eventHeaderScrolls = useRef(new Map());
   const dayScrolls = useRef(new Map());
   const scrollToDay = (day) => {
-    console.log("scrolling to", day);
     if (enabledDates.find((d) => isSameDay(d.date, day))) setDay(day);
     dayScrolls.current.get(day.toDateString())?.scrollIntoView({
       behavior: "smooth",
