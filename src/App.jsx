@@ -35,7 +35,15 @@ const App = () => {
   const [block, setBlock] = useState("");
   const [topics, setTopics] = useState([]);
 
-  const scrolls = useRef(new Map());
+  const eventHeaderScrolls = useRef(new Map());
+  const dayScrolls = useRef(new Map());
+  const scrollToDay = (day) => {
+    console.log("scrolling to", day);
+    if (enabledDates.find((d) => isSameDay(d.date, day))) setDay(day);
+    dayScrolls.current.get(day.toDateString())?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
 
   const blocks = useBlocks(
     cal?.data,
@@ -69,12 +77,15 @@ const App = () => {
                 value={day}
                 onChange={(e) => {
                   setDay(e);
-                  scrolls.current.get(format(e, "L-d")).scrollIntoView({
-                    behavior: "smooth",
-                  });
+                  eventHeaderScrolls.current
+                    .get(e.toDateString())
+                    ?.scrollIntoView({
+                      behavior: "smooth",
+                    });
                 }}
                 dates={dates}
                 disabled={(d) => !enabledDates.includes(d)}
+                scrolls={dayScrolls}
               />
             </FilterSection>
           </div>
@@ -84,7 +95,8 @@ const App = () => {
             value={block}
             onChange={setBlock}
             blocks={blocks}
-            scrolls={scrolls}
+            scrolls={eventHeaderScrolls}
+            scrollToDay={scrollToDay}
           />
         </div>
       </div>
