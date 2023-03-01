@@ -23,8 +23,8 @@ const rules = {
   lunch: (b) => b.summary?.includes("Lunch"),
   dinner: (b) => b.summary?.includes("Dinner"),
   work: (b) => b.summary?.includes("Work") && b.date.getHours() < 17,
-  afternoon: (b) => b.date.getHours() >= 12 && b.date.getHours() < 18,
-  evening: (b) => b.date.getHours() >= 18,
+  afternoon: (b) => format(b.date, "BBBB").endsWith("afternoon"),
+  evening: (b) => format(b.date, "BBBB").endsWith("evening"),
 };
 
 const App = () => {
