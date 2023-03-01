@@ -101,7 +101,7 @@ const useBlocks = (data, plansData, topics) => {
     const yesterday = sub(new Date(), {
       minutes: now.getTimezoneOffset(),
     });
-    const then = add(now, { weeks });
+    const then = add(now, { weeks, days: -1 });
     const blocks = [];
     Object.values(data)
       .filter((event) => event.type === "VEVENT")
@@ -121,7 +121,7 @@ const useBlocks = (data, plansData, topics) => {
                       days: possiblyNextDay > occurrence ? 1 : -1,
                     })
                   : occurrence;
-              if (adjustedDate > now)
+              if (adjustedDate > now && adjustedDate < then)
                 blocks.push({
                   ...event,
                   date: adjustedDate,
