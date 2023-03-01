@@ -7,8 +7,6 @@ import {
   areIntervalsOverlapping,
   startOfDay,
   sub,
-  set,
-  getDate,
 } from "date-fns";
 import ical from "ical";
 import { rrulestr } from "rrule";
@@ -100,6 +98,9 @@ const useBlocks = (data, plansData, topics) => {
     if (!data || plansData.includes(undefined)) return [];
 
     const now = new Date();
+    const yesterday = sub(new Date(), {
+      minutes: now.getTimezoneOffset(),
+    });
     const then = add(now, { weeks });
     const blocks = [];
     Object.values(data)
@@ -107,9 +108,19 @@ const useBlocks = (data, plansData, topics) => {
       .forEach((event) => {
         if (event.rrule) {
           rrulestr(event.rrule.toString())
-            .between(adjustDate(now, add), adjustDate(then, add))
+            .between(yesterday, then) // generates starting yesterday due to timezone bug
             .forEach((occurrence) => {
-              const adjustedDate = adjustDate(occurrence, sub);
+              // RRule has a bug with timezones and starts occurrences based on UTC time rather than local timezone
+              // This pushes the occurrence by 1 day if the timezone offset causes the event to appear on the incorrect day
+              const possiblyNextDay = add(occurrence, {
+                minutes: occurrence.getTimezoneOffset(),
+              });
+              const adjustedDate =
+                possiblyNextDay.getDate() !== occurrence.getDate()
+                  ? add(occurrence, {
+                      days: possiblyNextDay > occurrence ? 1 : -1,
+                    })
+                  : occurrence;
               if (adjustedDate > now)
                 blocks.push({
                   ...event,
@@ -226,16 +237,6 @@ const useCalendar = (url) => {
   }, [url]);
 
   return cal;
-};
-
-// rrule has a bug with timezones where the timezone offset for the "date" specifically is subtracted twice -- https://github.com/jakubroztocil/rrule/issues/537
-const adjustDate = (date, method) => {
-  const artificialOffset = method(date, {
-    minutes: date.getTimezoneOffset(),
-  });
-  return set(date, {
-    date: getDate(artificialOffset),
-  });
 };
 
 export default App;
