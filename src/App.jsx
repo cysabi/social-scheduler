@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   format,
   isSameDay,
@@ -7,6 +7,8 @@ import {
   areIntervalsOverlapping,
   startOfDay,
   sub,
+  set,
+  getDate,
 } from "date-fns";
 import ical from "ical";
 import { rrulestr } from "rrule";
@@ -34,6 +36,8 @@ const App = () => {
   const [day, setDay] = useState("");
   const [block, setBlock] = useState("");
   const [topics, setTopics] = useState([]);
+
+  const scrolls = useRef(new Map());
 
   const blocks = useBlocks(
     cal?.data,
@@ -65,7 +69,12 @@ const App = () => {
               <TopicsFilter topics={topics} setTopics={setTopics} />
               <DayFilter
                 value={day}
-                onChange={setDay}
+                onChange={(e) => {
+                  setDay(e);
+                  scrolls.current.get(format(e, "L-d")).scrollIntoView({
+                    behavior: "smooth",
+                  });
+                }}
                 dates={dates}
                 disabled={(d) => !enabledDates.includes(d)}
               />
@@ -77,6 +86,7 @@ const App = () => {
             value={block}
             onChange={setBlock}
             blocks={blocks}
+            scrolls={scrolls}
           />
         </div>
       </div>
@@ -85,25 +95,11 @@ const App = () => {
   );
 };
 
-function convertDateToUTC(date) {
-  return new Date(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate(),
-    date.getUTCHours(),
-    date.getUTCMinutes(),
-    date.getUTCSeconds()
-  );
-}
-
 const useBlocks = (data, plansData, topics) => {
   const blocks = useMemo(() => {
     if (!data || plansData.includes(undefined)) return [];
 
     const now = new Date();
-    const yesterday = sub(new Date(), {
-      minutes: now.getTimezoneOffset(),
-    });
     const then = add(now, { weeks });
     const blocks = [];
     Object.values(data)
@@ -111,19 +107,9 @@ const useBlocks = (data, plansData, topics) => {
       .forEach((event) => {
         if (event.rrule) {
           rrulestr(event.rrule.toString())
-            .between(yesterday, then) // generates starting yesterday due to timezone bug
+            .between(adjustDate(now, add), adjustDate(then, add))
             .forEach((occurrence) => {
-              // RRule has a bug with timezones and starts occurrences based on UTC time rather than local timezone
-              // This pushes the occurrence by 1 day if the timezone offset causes the event to appear on the incorrect day
-              const possiblyNextDay = add(occurrence, {
-                minutes: occurrence.getTimezoneOffset(),
-              });
-              const adjustedDate =
-                possiblyNextDay.getDate() !== occurrence.getDate()
-                  ? add(occurrence, {
-                      days: possiblyNextDay > occurrence ? 1 : -1,
-                    })
-                  : occurrence;
+              const adjustedDate = adjustDate(occurrence, sub);
               if (adjustedDate > now)
                 blocks.push({
                   ...event,
@@ -205,15 +191,12 @@ const useDates = (blocks) => {
       const nextDate = add(today, { days: i });
       return {
         date: nextDate,
-        month: format(nextDate, "LLL"),
-        day: format(nextDate, "d"),
-        weekDay: format(nextDate, "EEE"),
-        altLabel:
+        label:
           nextDate.getTime() === today.getTime()
             ? "Today"
             : nextDate.getTime() === today.getTime() + 60 * 60 * 24000
             ? "Tmrw"
-            : undefined,
+            : format(nextDate, "EEE"),
       };
     });
     const enabledDates = dates.filter(
@@ -243,6 +226,16 @@ const useCalendar = (url) => {
   }, [url]);
 
   return cal;
+};
+
+// rrule has a bug with timezones where the timezone offset for the "date" specifically is subtracted twice -- https://github.com/jakubroztocil/rrule/issues/537
+const adjustDate = (date, method) => {
+  const artificialOffset = method(date, {
+    minutes: date.getTimezoneOffset(),
+  });
+  return set(date, {
+    date: getDate(artificialOffset),
+  });
 };
 
 export default App;
