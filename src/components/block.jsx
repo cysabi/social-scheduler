@@ -46,6 +46,8 @@ const BlockSection = ({
             className="flex flex-col gap-3 mt-2"
           >
             {filteredBlocks.map((block, i) => {
+
+            const overlapTitle = block.overlap?.summary;
               return (
                 <Fragment key={block.id}>
                   <BlockHeadings
@@ -53,7 +55,7 @@ const BlockSection = ({
                     date={block.date}
                     scrolls={scrolls}
                   />
-                  <RadioGroup.Option value={block}>
+                  <RadioGroup.Option value={block} disabled={block.isScheduled}>
                     {({ checked }) => {
                       const time = format(block.date, "BBBB").split(" ").pop();
                       return (
@@ -62,9 +64,13 @@ const BlockSection = ({
                             checked
                               ? "border-yellow-500 bg-yellow-400/20"
                               : "border-slate-600 hover:bg-slate-700"
+                          } ${
+                            block.isScheduled
+                              ? "border-zinc-500 bg-zinc-400/20"
+                              : "border-slate-600 hover:bg-slate-700"
                           }`}
                         >
-                          <p className="text-lg">{block.summary}</p>
+                          <p className="text-lg">{overlapTitle ? (overlapTitle === 'Busy' ? `Busy on ${block.summary}` : overlapTitleoverlapTitle) : block.summary}</p>
                           <p className={`font-normal text-slate-200`}>{time}</p>
                         </div>
                       );

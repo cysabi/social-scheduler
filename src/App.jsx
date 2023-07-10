@@ -182,14 +182,20 @@ const useBlocks = (data, plansData, topics) => {
           });
         }
       });
-    return blocks.filter(
-      (b) =>
-        planBlocks.filter((p) =>
-          areIntervalsOverlapping(
-            { start: b.date, end: b.endDate },
-            { start: p.date, end: p.endDate }
-          )
-        ).length === 0
+    return blocks.map(
+      (b) =>{
+        const overlaps = planBlocks.filter((p) =>
+        areIntervalsOverlapping(
+          { start: b.date, end: b.endDate },
+          { start: p.date, end: p.endDate }
+        )
+      );
+        if (overlaps.length === 0) {
+          return b;
+        }
+        return {...b, isScheduled: true, overlap: overlaps[0]};
+      }
+        
     );
   }, [data, plansData]);
 
