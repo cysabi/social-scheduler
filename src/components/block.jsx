@@ -43,11 +43,9 @@ const BlockSection = ({
             value={value}
             onChange={onChange}
             by={(a, b) => a.id === b.id}
-            className="flex flex-col gap-3 mt-2"
+            className={`flex flex-col ${"gap-3"} mt-2`}
           >
             {filteredBlocks.map((block, i) => {
-
-            const overlapTitle = block.overlap?.summary;
               return (
                 <Fragment key={block.id}>
                   <BlockHeadings
@@ -55,23 +53,64 @@ const BlockSection = ({
                     date={block.date}
                     scrolls={scrolls}
                   />
-                  <RadioGroup.Option value={block} disabled={block.isScheduled}>
+                  <RadioGroup.Option
+                    value={block}
+                    disabled={!!block.overlap}
+                    style={{
+                      marginTop: block.hasAbove ? "-15px" : "0",
+                      marginBottom: block.hasBelow ? "-15px" : "0",
+                    }}
+                  >
                     {({ checked }) => {
                       const time = format(block.date, "BBBB").split(" ").pop();
+                      
+                        let pointer = block;
+                        let list = [block];
+                        while (pointer.hasBelow) {
+                          list.push(pointer.hasBelow);
+                          pointer = pointer.hasBelow;
+                        }
+                      
                       return (
                         <div
-                          className={`border-2 rounded-lg flex items-center justify-between flex-wrap font-medium cursor-pointer px-3 py-2.5 ${
+                          className={`border-2 flex items-center justify-between flex-wrap font-medium cursor-pointer px-3 py-2.5 ${
+                            block.hasAbove || block.hasBelow ? '' : "rounded-lg"
+                          } ${block.hasAbove ? "border-t-0" : ""} ${
+                            block.hasBelow ? "border-b-0" : ""
+                          } ${
+                            block.hasAbove && !block.hasBelow
+                              ? "rounded-b-lg"
+                              : ""
+                          } ${
+                            block.hasBelow && !block.hasAbove
+                              ? "rounded-t-lg"
+                              : ""
+                          } ${
                             checked
                               ? "border-yellow-500 bg-yellow-400/20"
                               : "border-slate-600 hover:bg-slate-700"
                           } ${
-                            block.isScheduled
-                              ? "border-zinc-500 bg-zinc-400/20"
+                            !!block.overlap
+                              ? "text-slate-500 pointer-events-none"
                               : "border-slate-600 hover:bg-slate-700"
                           }`}
                         >
-                          <p className="text-lg">{overlapTitle ? (overlapTitle === 'Busy' ? `Busy on ${block.summary}` : overlapTitleoverlapTitle) : block.summary}</p>
-                          <p className={`font-normal text-slate-200`}>{time}</p>
+                          <p className="text-lg">
+                            {!block.hasAbove &&
+                              (block.overlap
+                                ? `Busy in the ${[
+                                    ...new Set(
+                                        list.map((b) =>
+                                            format(b.date, "BBBB")
+                                              .split(" ")
+                                              .pop()
+                                          )
+                                    ),
+                                  ].join(", ")
+                                }`
+                                : block.summary)}
+                          </p>
+                          <p className={`font-normal ${block.overlap ? "text-slate-800": 'text-slate-200'}`}>{time}</p>
                         </div>
                       );
                     }}
