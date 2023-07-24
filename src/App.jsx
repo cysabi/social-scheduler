@@ -195,7 +195,6 @@ const useBlocks = (data, plansData, topics) => {
       return { ...b, overlap: overlaps };
     });
     return finalBlocks.map((b) => {
-      blocks.filter((b) => b.overlap).forEach((b) => console.log(b));
       const hasAbove =
         finalBlocks.filter(
           (b2) =>

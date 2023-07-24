@@ -63,18 +63,18 @@ const BlockSection = ({
                   >
                     {({ checked }) => {
                       const time = format(block.date, "BBBB").split(" ").pop();
-                      
-                        let pointer = block;
-                        let list = [block];
-                        while (pointer.hasBelow) {
-                          list.push(pointer.hasBelow);
-                          pointer = pointer.hasBelow;
-                        }
-                      
+
+                      let pointer = block;
+                      let list = [block];
+                      while (pointer.hasBelow) {
+                        list.push(pointer.hasBelow);
+                        pointer = pointer.hasBelow;
+                      }
+
                       return (
                         <div
                           className={`border-2 flex items-center justify-between flex-wrap font-medium cursor-pointer px-3 py-2.5 ${
-                            block.hasAbove || block.hasBelow ? '' : "rounded-lg"
+                            block.hasAbove || block.hasBelow ? "" : "rounded-lg"
                           } ${block.hasAbove ? "border-t-0" : ""} ${
                             block.hasBelow ? "border-b-0" : ""
                           } ${
@@ -100,17 +100,29 @@ const BlockSection = ({
                               (block.overlap
                                 ? `Busy in the ${[
                                     ...new Set(
-                                        list.map((b) =>
-                                            format(b.date, "BBBB")
-                                              .split(" ")
-                                              .pop()
-                                          )
+                                      list.map((b) =>
+                                        format(b.date, "BBBB").split(" ").pop()
+                                      )
                                     ),
-                                  ].join(", ")
-                                }`
+                                  ].join(", ")}`
                                 : block.summary)}
                           </p>
-                          <p className={`font-normal ${block.overlap ? "text-slate-800": 'text-slate-200'}`}>{time}</p>
+                          <p
+                            className={`font-normal ${
+                              block.overlap
+                                ? block.hasAbove
+                                  ? "text-slate-800"
+                                  : "text-slate-500"
+                                : "text-slate-200"
+                            }`}
+                          >
+                            {block.overlap
+                              ? block.overlap[0].summary.replace(
+                                  "Busy",
+                                  "Private"
+                                )
+                              : time}
+                          </p>
                         </div>
                       );
                     }}
