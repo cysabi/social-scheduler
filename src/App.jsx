@@ -191,6 +191,7 @@ const useBlocks = (data, plansData, topics) => {
       );
       b.overlaps = overlaps.map((o) => ({
         id: o.id,
+        date: o.date,
         blocks: [b.summary],
         name: o.summary,
         private: o.transparency === undefined,
