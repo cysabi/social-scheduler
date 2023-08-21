@@ -93,7 +93,7 @@ const App = () => {
             day={day}
             value={block}
             onChange={setBlock}
-            blocks={blocks}
+            blocks={blocks.sort((a, b) => a.date - b.date)}
             scrolls={eventHeaderScrolls}
             scrollToDay={scrollToDay}
           />
@@ -182,36 +182,20 @@ const useBlocks = (data, plansData, topics) => {
           });
         }
       });
-    let finalBlocks = blocks.map((b) => {
+    return blocks.map((b) => {
       const overlaps = planBlocks.filter((p) =>
         areIntervalsOverlapping(
           { start: b.date, end: b.endDate },
           { start: p.date, end: p.endDate }
         )
       );
-      if (overlaps.length === 0) {
-        return b;
-      }
-      return { ...b, overlap: overlaps };
-    });
-    return finalBlocks.map((b) => {
-      const hasAbove =
-        finalBlocks.filter(
-          (b2) =>
-            b.overlap &&
-            b2.overlap &&
-            b2.date.getDate() === b.date.getDate() &&
-            b2.date < b.date
-        )[0];
-      const hasBelow =
-        finalBlocks.filter(
-          (b2) =>
-            b.overlap &&
-            b2.overlap &&
-            b2.date.getDate() === b.date.getDate() &&
-            b2.date > b.date
-        )[0];
-      return { ...b, hasAbove, hasBelow };
+      b.overlaps = overlaps.map((o) => ({
+        id: o.id,
+        blocks: [b.summary],
+        name: o.summary,
+        private: o.transparency === undefined,
+      }));
+      return b;
     });
   }, [data, plansData]);
 
