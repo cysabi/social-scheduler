@@ -26,10 +26,6 @@ This app depends on links to 2 ical files, one that represents "blocks" that peo
 2. `npm run dev`
 3. To build for production, run `npm run build`. There's already a workflow set up to automatically push to Github Pages.
 
----
-
-[**@cerulepto**](https://github.com/LeptoFlare) • [lepto.tech](https://lepto.tech)
-
 <!-- markdown links & imgs -->
 
 [stars-shield]: https://img.shields.io/github/stars/LeptoFlare/social-scheduler.svg?style=social
